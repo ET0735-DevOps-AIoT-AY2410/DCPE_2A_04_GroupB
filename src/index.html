@@ -1,23 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="stylesheet" href="styles.css">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Library Book Reservation</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <header>
+        <h1>Reserve a Book</h1>
+    </header>
+    
+    <p>
+        <a href=about.html>Link to About Page </a>
+    </p>
+    
     <div class="container">
-        <h2>Reserve a Book</h2>
         <form id="reservationForm">
-            <div class="form-group">
-                <label for="name">Your Name:</label>
-                <input type="text" id="name" name="name" required>
+            <div id="name" visibility: hidden>
             </div>
-            <div class="form-group">
-                <label for="identity">Admin number:</label>
-                <input type="text" id="identity" name="identity" required>
+            <div id="identity" visibility: hidden>
             </div>
+            
             <div class="form-group">
                 <label for="bookTitle">Book Title:</label>
                 <input type="text" id="bookTitle" name="bookTitle" required>
@@ -40,12 +44,27 @@
     </div>
 
     <script>
+        //Load name and identity
+        window.onload = function () {
+                var url = document.location.href,
+                    params = url.split('?')[1].split('&'),
+                    data = {}, tmp;
+                for (var i = 0, l = params.length; i < l; i++) {
+                    tmp = params[i].split('=');
+                    data[tmp[0]] = tmp[1];
+                }
+                document.getElementById('name').innerHTML = data.name;
+                document.getElementById('identity').innerHTML = data.identity;
+        }
+
+        //Pass data to back end
         document.getElementById('reservationForm').addEventListener('submit', function(event) {
             event.preventDefault();
+
             
             const formData = {
-                name: document.getElementById('name').value,
-                identity: document.getElementById('identity').value,
+                name: document.getElementById('name').innerHTML,
+                identity: document.getElementById('identity').innerHTML,
                 bookTitle: document.getElementById('bookTitle').value,
                 location: document.getElementById('location').value
             };
@@ -69,9 +88,5 @@
             .catch(error => console.error('Error:', error));
         });
     </script>
-
 </body>
 </html>
-
-
-

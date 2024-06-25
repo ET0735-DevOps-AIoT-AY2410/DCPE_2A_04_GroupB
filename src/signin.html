@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library Sign In</title>
+</head>
+<body>
+    <div class="container">
+        <h2>Reserve a Book</h2>
+        <form id="reservationForm">
+            <div class="form-group">
+                <label for="name">Your Name:</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="identity">Admin number:</label>
+                <input type="text" id="identity" name="identity" required>
+            </div>
+
+            <div class="form-group">
+                <button type="button" id="signIn" onClick="passInfo()">Sign In</button> 
+            </div>
+        </form>
+    </div>
+
+    <script>
+        function passInfo() {
+            var name = document.getElementById('name').value;
+            var identity = document.getElementById('identity').value;
+            
+            if (name === "" || identity === "") {
+                alert("Please fill out all required fields.");
+                return;
+            }
+            
+            var url = 'index.html?name=' + encodeURIComponent(name) + '&identity=' + encodeURIComponent(identity);
+            document.location.href = url;
+        }
+
+        document.getElementById('reservationForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            passInfo();
+        });
+
+    </script>
+
+</body>
+</html>
