@@ -34,7 +34,44 @@
                 <button type="submit">Reserve</button>
             </div>
         </form>
+        <div class="confirmation" id="confirmationMessage">
+            <p>Thank you for your reservation! You will receive a confirmation email shortly.</p>
+        </div>
     </div>
+
+    <script>
+        document.getElementById('reservationForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            const formData = {
+                name: document.getElementById('name').value,
+                identity: document.getElementById('identity').value,
+                bookTitle: document.getElementById('bookTitle').value,
+                location: document.getElementById('location').value
+            };
+
+            fetch('http://127.0.0.1:5000/reserve', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('confirmationMessage').style.display = 'block';
+                    document.getElementById('reservationForm').reset();
+                } else {
+                    alert('There was a problem with your reservation. Please try again.');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    </script>
 
 </body>
 </html>
+
+
+
