@@ -15,6 +15,64 @@ body {
     
 }
 
+header {
+    padding: 60px;
+    text-align: center;
+    background: #1abc9c;
+    color: white;
+    font-size: 30px;
+    display: block;
+}
+
+header h1 {
+    margin: 0;
+}
+
+.signOut{
+    font-size: 10px;
+    text-align: right;
+    margin: 10px;
+}
+
+.overlay {
+    position: fixed;
+    display: none;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 2;
+    cursor: pointer;
+}
+
+.overlay-box {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    max-width: 400px;
+    width: 100%;
+    display: none;
+
+    margin: auto;
+    position: fixed;
+    display: none;
+    z-index: 3;
+    cursor: pointer;
+
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+
+h2 {
+    margin-top: 0;
+}
+
 .form-group {
     margin-bottom: 15px;
 }
@@ -48,3 +106,41 @@ body {
     display: none;
     margin-top: 20px;
 }
+
+
+
+main {
+    padding: 20px;
+}
+
+#books {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+}
+
+.book {
+    border: 1px solid #ccc;
+    padding: 10px;
+    width: 200px;
+    text-align: center;
+}
+
+.book img {
+    max-width: 100%;
+    height: auto;
+}
+
+.book button {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+}
+
+.book button:hover {
+    background-color: #218838;
+}
+
