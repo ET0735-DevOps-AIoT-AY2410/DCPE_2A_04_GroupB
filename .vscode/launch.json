@@ -8,7 +8,7 @@
             "type": "chrome",
             "request": "launch",
             "name": "Open index.html",
-            "file": "c:\\Local_Git_Repository\\DCPE_2A_04_GroupB\\src\\signin.html"
+            "file": "c:\\Local_Git_Repository\\DCPE_2A_04_GroupB\\src\\index.html"
         }
     ]
 }
