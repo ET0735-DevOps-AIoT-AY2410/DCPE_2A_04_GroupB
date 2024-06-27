@@ -2,7 +2,10 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS for all routes
+CORS(app)
+
+namelist = []
+booklist = {}
 
 @app.route('/reserve', methods=['POST'])
 def reserve():
@@ -12,8 +15,17 @@ def reserve():
     book_title = data.get('bookTitle')
     location = data.get('location')
 
-    # Print received data for debugging purposes
-    print(f'Reservation made by {name} (Admin Number: {identity}) for the book "{book_title}" at "{location}"')
+    print(f'Reservation made by {name} ({identity}) for the book "{book_title}" at {location}')
+    info = name + '&' + identity
+    booklist.setdefault(info, [])
+    
+    if len(booklist[info]) < 10:
+        booklist[info].append([book_title, location])
+        print(booklist)
+    
+    else:
+        return jsonify({'success': False})
+
 
     # Respond with a success message
     return jsonify({'success': True})
