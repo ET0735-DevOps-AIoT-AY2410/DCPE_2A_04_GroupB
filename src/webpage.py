@@ -34,5 +34,9 @@ def reserve():
     # Respond with a success message
     return jsonify({'success': True})
 
+@app.route('/reservations', methods=['GET'])
+def get_reservations():
+    return jsonify(booklist)
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
