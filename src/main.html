@@ -63,6 +63,7 @@
     </main>
 
     <script>
+        
     //Books list
     const books = [
         { id: 1, bookTitle: 'Book 1', image: 'https://via.placeholder.com/150' },
@@ -170,7 +171,8 @@
             location: document.getElementById('location').value
         };
 
-        fetch('http://127.0.0.1:5000/reserve', {
+        //Public IP below
+        fetch('http://192.168.50.191:5000/reserve', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
