@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+from datetime import datetime, timedelta
 
 #To remote host:
 #cd src
@@ -18,13 +19,18 @@ def reserve():
     identity = data.get('identity')
     book_title = data.get('bookTitle')
     location = data.get('location')
+    reserveTime = data.get('reserveTime')
 
-    print(f'Reservation made by {name} ({identity}) for the book "{book_title}" at {location}')
+    reserveDate = datetime.fromisoformat(reserveTime.replace('Z', '+00:00')) + timedelta(hours=8)
+
+    dateTime = reserveDate.strftime('%Y-%m-%d %H:%M:%S')
+
+    print(f'Reservation made by {name} ({identity}) for the book "{book_title}" at {location}, {dateTime}')
     info = name + '&' + identity
     booklist.setdefault(info, [])
     
     if len(booklist[info]) < 10:
-        booklist[info].append([book_title, location])
+        booklist[info].append([book_title, location, dateTime])
         print(booklist)
     
     else:

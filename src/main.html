@@ -168,7 +168,9 @@
             name: document.getElementById('name').innerHTML,
             identity: document.getElementById('identity').innerHTML,
             bookTitle: document.getElementById('reservedBook').value,
-            location: document.getElementById('location').value
+            location: document.getElementById('location').value,
+
+            reserveTime: new Date().toISOString()
         };
 
         //Public IP below
