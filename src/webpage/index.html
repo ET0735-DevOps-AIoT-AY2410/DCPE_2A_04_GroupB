@@ -1,50 +1,60 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="stylesheet" href="styles.css">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Library Sign In</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
-        <h2>Reserve a Book</h2>
-        <form id="reservationForm">
+        <h2>Sign In</h2>
+        <form id="loginForm">
             <div class="form-group">
-                <label for="name">Your Name:</label>
-                <input type="text" id="name" name="name" required>
+                <label for="user">Name:</label>
+                <input type="text" id="user" name="user" required>
             </div>
             <div class="form-group">
                 <label for="identity">Admin number:</label>
                 <input type="text" id="identity" name="identity" required>
             </div>
-
             <div class="form-group">
-                <button type="button" id="signIn" onClick="passInfo()">Sign In</button> 
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <div class="form-group">
+                <button type="submit">Sign In</button>
             </div>
         </form>
     </div>
 
     <script>
-        function passInfo() {
-            var name = document.getElementById('name').value;
-            var identity = document.getElementById('identity').value;
-            
-            if (name === "" || identity === "") {
-                alert("Please fill out all required fields.");
-                return;
-            }
-            
-            var url = 'main.html?name=' + encodeURIComponent(name) + '&identity=' + encodeURIComponent(identity);
-            document.location.href = url;
-        }
-
-        document.getElementById('reservationForm').addEventListener('submit', function(event) {
+        const ip = 'http://192.168.50.191:5000'
+        document.getElementById('loginForm').addEventListener('submit', function(event) {
             event.preventDefault();
-            passInfo();
+            const identity = document.getElementById('identity').value;
+            const password = document.getElementById('password').value;
+            const user = document.getElementById('user').value;
+    
+            fetch(`${ip}/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ identity: identity, password: password, user: user})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Redirect to main.html after successful login
+                    window.location.href = 'main.html';
+                } else {
+                    alert('Login failed: ' + data.message);
+                }
+            })
+            .catch(error => console.error('Error:', error));
         });
-
     </script>
-
+    
 </body>
 </html>

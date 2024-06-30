@@ -63,6 +63,7 @@
     </main>
 
     <script>
+    const ip = 'http://192.168.50.191:5000'
         
     //Books list
     const books = [
@@ -116,6 +117,27 @@
     
     //Load books
     document.addEventListener('DOMContentLoaded', () => {
+        console.log('DOMContentLoaded event fired');
+        fetch(`${ip}/session`, {
+            method: 'GET'
+        })
+        .then(response => {
+            console.log('Session fetch response:', response);
+            return response.json();
+        })
+        .then(data => {
+            console.log('Session data:', data);
+            if (!data.loggedIn) {
+                console.log('User not logged in, redirecting to index.html');
+                window.location.href = 'index.html';
+            } else {
+                document.getElementById('name').innerHTML = data.name;
+                document.getElementById('identity').innerHTML = data.identity;
+                console.log('User logged in:', data.name, data.identity);
+            }
+        })
+
+
         const bookContainer = document.getElementById('books');
 
         books.forEach(book => {
@@ -144,21 +166,6 @@
         on();
     }
 
-
-
-    //Load name and identity
-    window.onload = function () {
-            var url = document.location.href,
-                params = url.split('?')[1].split('&'),
-                data = {}, tmp;
-            for (var i = 0, l = params.length; i < l; i++) {
-                tmp = params[i].split('=');
-                data[tmp[0]] = tmp[1];
-            }
-            document.getElementById('name').innerHTML = data.name;
-            document.getElementById('identity').innerHTML = data.identity;
-    }
-
     //Pass data to back end
     document.getElementById('reservationForm').addEventListener('submit', function(event) {
         event.preventDefault();
@@ -173,7 +180,7 @@
         };
 
         //Public IP below
-        fetch('http://192.168.50.170:5000/reserve', {
+        fetch(`${ip}/reserve`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
