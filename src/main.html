@@ -169,12 +169,11 @@
             identity: document.getElementById('identity').innerHTML,
             bookTitle: document.getElementById('reservedBook').value,
             location: document.getElementById('location').value,
-
             reserveTime: new Date().toISOString()
         };
 
         //Public IP below
-        fetch('http://192.168.50.191:5000/reserve', {
+        fetch('http://192.168.50.170:5000/reserve', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
