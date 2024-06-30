@@ -8,8 +8,8 @@ def getNameList(bookList):
 def findPerson(nameList, nameOrNum):
     for i in range(len(nameList)):
         if nameOrNum in nameList[i]:
-            return nameList[i]
-    return False
+            return True, nameList[i]
+    return [False]
 
 def getReserve(Booklist, person):
     
@@ -27,7 +27,7 @@ def main():
     print(nameList)
     
     name = '7654321'
-    person = findPerson(nameList, name)
+    person = findPerson(nameList, name)[1]
 
     print(getReserve(egBooklist, person))
 
