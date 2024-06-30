@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from datetime import datetime, timedelta
+import logging
 
 #To remote host:
 #cd src
@@ -8,6 +9,10 @@ from datetime import datetime, timedelta
 
 app = Flask(__name__)
 CORS(app)
+
+BASE_URL = 'http://127.0.0.1:5000'
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.ERROR)
 
 namelist = []
 booklist = {}
