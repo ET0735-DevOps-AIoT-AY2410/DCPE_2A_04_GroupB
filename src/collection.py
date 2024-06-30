@@ -5,10 +5,11 @@ from hal import hal_lcd as LCD
 
 lcd = LCD.lcd()
 
-def collectBook(person, location, bookList):
+def collectBook(person, location, bookList, noOfBorrowed):
     borrowList = {}
     info = person[0] + '&' + person[1]
     tempBookList = bookList[info]
+    flag = 0
     
     borrowList.setdefault(info, [])
     for i in range(len(tempBookList)):
@@ -16,11 +17,14 @@ def collectBook(person, location, bookList):
             tempBookList[i].pop(1)
             tempBookList[i][1] = (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
 
-            if len(borrowList[info]) < 10:
+            if len(borrowList[info]) + noOfBorrowed < 10:
                 borrowList[info].append(tempBookList[i])
+            
+            elif len(borrowList[info]) + noOfBorrowed >= 10:
+                flag = 1
     
     if len(tempBookList) != 0:
-        if len(borrowList[info]) == 0: 
+        if len(borrowList[info]) == 0 and flag == 0: 
             if location == 1:
                 output = "Go to Location 2"
             elif location == 2:
@@ -32,6 +36,11 @@ def collectBook(person, location, bookList):
         else:
             for i in range(len(borrowList[info])):
                 dispense.dispenseBook()
+
+            if flag == 1:
+                lcd.lcd_display_string("Maximum books", 1)
+                lcd.lcd_display_string("reached (10)", 2)
+
     
     else:
         lcd.lcd_display_string("No reservations", 1)
@@ -61,7 +70,7 @@ def main():
                     'Test2&7654321': [['Book 5', '2024-06-15 21:28:26']]}
 
     dc_motor.init()
-    tempList = collectBook(person, location, egBooklist)
+    tempList = collectBook(person, location, egBooklist, 0)
     print(tempList)
 
     print(combineList(tempList, egBorrowlist))
