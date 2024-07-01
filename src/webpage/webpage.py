@@ -38,26 +38,21 @@ def login():
     if identity in passwords and passwords[identity] == password:
         session['identity'] = identity
         session['name'] = user
-        print(f'Session after login: {session}')
         return jsonify({'success': True})
     else:
         return jsonify({'success': False, 'message': 'Invalid identity or password'})
 
 @app.route('/session', methods=['GET'])
 def get_session():
-    print(f'Session on /session request: {session}')
     if 'identity' in session:
-        print("Session exists: TRUE")
         return jsonify({'loggedIn': True, 'identity': session['identity'], 'name': session['name']})
     else:
-        print("Session exists: FALSE")
         return jsonify({'loggedIn': False})
 
 @app.route('/logout', methods=['POST'])
 def logout():
     session.pop('identity', None)
     session.pop('name', None)
-    print('Session after logout:', session)
     return jsonify({'success': True})
 
 @app.route('/reserve', methods=['POST'])
