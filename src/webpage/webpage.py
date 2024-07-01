@@ -18,7 +18,6 @@ session = {}
 def load_passwords():
     passwords = {}
     file_path = os.path.join(os.path.dirname(__file__), 'passwords.csv')
-    print(file_path)
     with open(file_path, newline='') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
