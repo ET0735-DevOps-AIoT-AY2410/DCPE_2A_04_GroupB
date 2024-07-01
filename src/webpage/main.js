@@ -131,3 +131,29 @@ document.getElementById('reservationForm').addEventListener('submit', function(e
     })
     .catch(error => console.error('Error:', error));
 });
+
+fetch(`${ip}/login`, {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ identity: identity, password: password, user: user})
+})
+.then(response => response.json())
+.then(data => {
+    if (data.success) {
+        // Redirect to main.html after successful login
+        window.location.href = 'main.html';
+    } else {
+        alert('Login failed: ' + data.message);
+    }
+})
+.catch(error => console.error('Error:', error));
+
+function logout() {
+    fetch(`${ip}/logout`, {
+        method: 'POST',
+    }).then(() => {
+        window.location.href = 'index.html';
+    }).catch(error => console.error('Error during logout:', error));
+}
