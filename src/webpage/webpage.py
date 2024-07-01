@@ -23,7 +23,20 @@ def load_passwords():
         for row in reader:
             passwords[row['username']] = row['password']
     return passwords
+
+def createAcc(username, password):
+    global passwords
+    file_path = os.path.join(os.path.dirname(__file__), 'passwords.csv')
+    with open(file_path, 'a', newline='') as csvfile:
+        fieldnames = ['username', 'password']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        
+        if csvfile.tell() == 0:
+            writer.writeheader()
+        writer.writerow({'username': username, 'password': password})
     
+    passwords = load_passwords()
+
 
 passwords = load_passwords()
 
@@ -53,6 +66,20 @@ def logout():
     session.pop('identity', None)
     session.pop('name', None)
     return jsonify({'success': True})
+
+@app.route('/signup', methods=['POST'])
+def signup():
+    data = request.get_json()
+    identity = data.get('identity')
+    password = data.get('password')
+
+    if identity in passwords:
+        return jsonify({'success': False, 'message': 'Admin No. already used'})
+    
+    createAcc(identity, password)
+    passwords[identity] = password
+    return jsonify({'success': True, 'message': 'Account created successfully'})
+
 
 @app.route('/reserve', methods=['POST'])
 def reserve():
