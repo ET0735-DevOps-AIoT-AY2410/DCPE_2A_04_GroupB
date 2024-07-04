@@ -53,7 +53,8 @@ function checkLocation() {
 //Load books
 document.addEventListener('DOMContentLoaded', () => {
     fetch(`${ip}/session`, {
-        method: 'GET'
+        method: 'GET',
+        credentials: 'include'
     })
     .then(response => {
         return response.json();

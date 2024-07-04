@@ -36,7 +36,6 @@ def createAcc(username, password):
     
     passwords = load_passwords()
 
-
 passwords = load_passwords()
 
 @app.route('/login', methods=['POST'])
@@ -79,7 +78,6 @@ def signup():
     passwords[identity] = password
     return jsonify({'success': True, 'message': 'Account created successfully'})
 
-
 @app.route('/reserve', methods=['POST'])
 def reserve():
     if 'identity' not in session:
@@ -105,7 +103,6 @@ def reserve():
     else:
         return jsonify({'success': False})
 
-    # Respond with a success message
     return jsonify({'success': True})
 
 @app.route('/reservations', methods=['GET'])
