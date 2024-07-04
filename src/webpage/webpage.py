@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 from datetime import datetime, timedelta
 import logging
@@ -8,7 +8,6 @@ import os
 app = Flask(__name__)
 CORS(app)
 
-BASE_URL = 'http://127.0.0.1:5000'
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
 
@@ -112,6 +111,23 @@ def reserve():
 @app.route('/reservations', methods=['GET'])
 def get_reservations():
     return jsonify(booklist)
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/create_account')
+def create_account():
+    return render_template('createAcc.html')
+
+@app.route('/main')
+def main():
+    return render_template('main.html')
+
+@app.route('/about')
+def about():
+    return render_template('about.html')
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)

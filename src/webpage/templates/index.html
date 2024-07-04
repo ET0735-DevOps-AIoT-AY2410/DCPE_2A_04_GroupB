@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Library Sign In</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
     <div class="container">
@@ -26,12 +26,12 @@
                 <button type="submit">Sign In</button>
             </div>
             <div class="form-group">
-                <a style="font-size: 12px" href="createAcc.html">Create a new account</a>
+                <a style="font-size: 12px" href="{{ url_for('create_account') }}">Create a new account</a>
             </div>
         </form>
     </div>
 
-    <script src="index.js"></script>
+    <script src="{{ url_for('static', filename='index.js') }}"></script>
     
 </body>
 </html>

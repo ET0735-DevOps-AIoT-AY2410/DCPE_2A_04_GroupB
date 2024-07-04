@@ -6,7 +6,7 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
     const password = document.getElementById('password').value;
     const user = document.getElementById('user').value;
 
-    fetch(`${ip}/signup`, {
+    fetch(`${ip}/login`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -16,9 +16,10 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            window.location.href = 'index.html';
+            // Redirect to main.html after successful login
+            window.location.href = "main";
         } else {
-            alert('Sign Up failed: ' + data.message);
+            alert('Login failed: ' + data.message);
         }
     })
     .catch(error => console.error('Error:', error));
