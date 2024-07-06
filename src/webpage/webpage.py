@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, session
 from flask_cors import CORS
 from datetime import datetime, timedelta
 import logging
@@ -6,13 +6,13 @@ import csv
 import os
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, supports_credentials=True)
 
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
 
 booklist = {}
-session = {}
+app.secret_key = 'super_secret_key'
 
 def load_passwords():
     passwords = {}
@@ -61,8 +61,7 @@ def get_session():
 
 @app.route('/logout', methods=['POST'])
 def logout():
-    session.pop('identity', None)
-    session.pop('name', None)
+    session.clear()
     return jsonify({'success': True})
 
 @app.route('/signup', methods=['POST'])
