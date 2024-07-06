@@ -22,16 +22,16 @@ def displayBorrowed(borrowList, person):
         for i in range(len(displayList)):
             if i%2 == 1:
                 lcd.lcd_clear()
-                lcd.lcd_display_string(displayList[i][0] + ' press ' + str(i), 1)
-                lcd.lcd_display_string(displayList[i+1][0] + ' press ' + str(i+1), 2)
+                lcd.lcd_display_string(displayList[i-1][0] + ' press ' + str(i), 1)
+                lcd.lcd_display_string(displayList[i][0] + ' press ' + str(i+1), 2)
                 time.sleep(0.5)
 
     elif len(displayList)%2 == 1:
         for i in range(len(displayList)):
             if i%2 == 1 and i<(len(displayList)-1):
                 lcd.lcd_clear()
-                lcd.lcd_display_string(displayList[i][0] + ' press ' + str(i), 1)
-                lcd.lcd_display_string(displayList[i+1][0] + ' press ' + str(i+1), 2)
+                lcd.lcd_display_string(displayList[i-1][0] + ' press ' + str(i), 1)
+                lcd.lcd_display_string(displayList[i][0] + ' press ' + str(i+1), 2)
                 time.sleep(0.5)
             elif i == (len(displayList)-1):
                 lcd.lcd_clear()
@@ -44,11 +44,11 @@ def returnBook(returnIndex, borrowList, person):
     info = person[0] + '&' + person[1]
     borrowList[info]
     reserveList = {}
-    index = 1
     
     reserveList.setdefault(info, [])
     for index in returnIndex:
-        reserveList[info].append([borrowList[info][index-1][0]])
+        if index <= len(borrowList[info] and index > 0):
+            reserveList[info].append([borrowList[info][int(index)-1][0]])
 
     return reserveList
 
