@@ -4,6 +4,9 @@ from datetime import datetime, timedelta
 import logging
 import csv
 import os
+import readBooklist
+from threading import Thread
+import requests
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
@@ -11,7 +14,6 @@ CORS(app, supports_credentials=True)
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
 
-booklist = {}
 app.secret_key = 'super_secret_key'
 
 def load_passwords():
@@ -94,18 +96,17 @@ def reserve():
 
     print(f'Reservation made by {name} ({identity}) for the book "{book_title}" at {location}, {dateTime}')
     info = name + '&' + identity
-    booklist.setdefault(info, [])
-    
-    if len(booklist[info]) < 10:
-        booklist[info].append([book_title, location, dateTime])
-        print(booklist)
-    else:
-        return jsonify({'success': False})
+
+    booklist = readBooklist.loadBooks()
+    if info not in booklist or len(booklist[info]) <= 10:
+        readBooklist.addBook(info, book_title, location, dateTime)
 
     return jsonify({'success': True})
 
 @app.route('/reservations', methods=['GET'])
 def get_reservations():
+    booklist = readBooklist.loadBooks()
+    print(booklist)
     return jsonify(booklist)
 
 @app.route('/')
@@ -123,7 +124,6 @@ def main():
 @app.route('/about')
 def about():
     return render_template('about.html')
-
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
