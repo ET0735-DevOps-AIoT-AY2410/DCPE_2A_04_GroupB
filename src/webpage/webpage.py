@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 import logging
 import csv
 import os
-import readBooklist
+import readWriteBooks
 from threading import Thread
 import requests
 
@@ -97,15 +97,15 @@ def reserve():
     print(f'Reservation made by {name} ({identity}) for the book "{book_title}" at {location}, {dateTime}')
     info = name + '&' + identity
 
-    booklist = readBooklist.loadBooks()
+    booklist = readWriteBooks.loadBooks()
     if info not in booklist or len(booklist[info]) <= 10:
-        readBooklist.addBook(info, book_title, location, dateTime)
+        readWriteBooks.addBook(info, book_title, location, dateTime)
 
     return jsonify({'success': True})
 
 @app.route('/reservations', methods=['GET'])
 def get_reservations():
-    booklist = readBooklist.loadBooks()
+    booklist = readWriteBooks.loadBooks()
     print(booklist)
     return jsonify(booklist)
 
