@@ -1,30 +1,42 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template, session
 from flask_cors import CORS
 from datetime import datetime, timedelta
 import logging
 import csv
 import os
+import readWriteBooks
+from threading import Thread
+import requests
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, supports_credentials=True)
 
-BASE_URL = 'http://127.0.0.1:5000'
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
 
-booklist = {}
-session = {}
+app.secret_key = 'super_secret_key'
 
 def load_passwords():
     passwords = {}
     file_path = os.path.join(os.path.dirname(__file__), 'passwords.csv')
-    print(file_path)
     with open(file_path, newline='') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
             passwords[row['username']] = row['password']
     return passwords
+
+def createAcc(username, password):
+    global passwords
+    file_path = os.path.join(os.path.dirname(__file__), 'passwords.csv')
+    with open(file_path, 'a', newline='') as csvfile:
+        fieldnames = ['username', 'password']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        
+        if csvfile.tell() == 0:
+            writer.writeheader()
+        writer.writerow({'username': username, 'password': password})
     
+    passwords = load_passwords()
 
 passwords = load_passwords()
 
@@ -38,27 +50,34 @@ def login():
     if identity in passwords and passwords[identity] == password:
         session['identity'] = identity
         session['name'] = user
-        print(f'Session after login: {session}')
         return jsonify({'success': True})
     else:
         return jsonify({'success': False, 'message': 'Invalid identity or password'})
 
 @app.route('/session', methods=['GET'])
 def get_session():
-    print(f'Session on /session request: {session}')
     if 'identity' in session:
-        print("Session exists: TRUE")
         return jsonify({'loggedIn': True, 'identity': session['identity'], 'name': session['name']})
     else:
-        print("Session exists: FALSE")
         return jsonify({'loggedIn': False})
 
 @app.route('/logout', methods=['POST'])
 def logout():
-    session.pop('identity', None)
-    session.pop('name', None)
-    print('Session after logout:', session)
+    session.clear()
     return jsonify({'success': True})
+
+@app.route('/signup', methods=['POST'])
+def signup():
+    data = request.get_json()
+    identity = data.get('identity')
+    password = data.get('password')
+
+    if identity in passwords:
+        return jsonify({'success': False, 'message': 'Admin No. already used'})
+    
+    createAcc(identity, password)
+    passwords[identity] = password
+    return jsonify({'success': True, 'message': 'Account created successfully'})
 
 @app.route('/reserve', methods=['POST'])
 def reserve():
@@ -77,20 +96,34 @@ def reserve():
 
     print(f'Reservation made by {name} ({identity}) for the book "{book_title}" at {location}, {dateTime}')
     info = name + '&' + identity
-    booklist.setdefault(info, [])
-    
-    if len(booklist[info]) < 10:
-        booklist[info].append([book_title, location, dateTime])
-        print(booklist)
-    else:
-        return jsonify({'success': False})
 
-    # Respond with a success message
+    booklist = readWriteBooks.loadBooks()
+    if info not in booklist or len(booklist[info]) <= 10:
+        readWriteBooks.addBook(info, book_title, location, dateTime)
+
     return jsonify({'success': True})
 
 @app.route('/reservations', methods=['GET'])
 def get_reservations():
+    booklist = readWriteBooks.loadBooks()
+    print(booklist)
     return jsonify(booklist)
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/create_account')
+def create_account():
+    return render_template('createAcc.html')
+
+@app.route('/main')
+def main():
+    return render_template('main.html')
+
+@app.route('/about')
+def about():
+    return render_template('about.html')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
