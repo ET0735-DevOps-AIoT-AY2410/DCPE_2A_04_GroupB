@@ -47,7 +47,7 @@ def returnBook(returnIndex, borrowList, person):
     
     reserveList.setdefault(info, [])
     for index in returnIndex:
-        if index <= len(borrowList[info] and index > 0):
+        if index <= len(borrowList[info]) and index > 0:
             reserveList[info].append([borrowList[info][int(index)-1][0]])
 
     return reserveList
