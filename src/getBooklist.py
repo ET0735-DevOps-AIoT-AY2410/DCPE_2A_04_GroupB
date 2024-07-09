@@ -8,7 +8,7 @@ def getReserve():
         response = requests.get(url)
         bookList = response.json()
     except:
-        return False
+        return [{}, {}]
     
     return bookList
 
