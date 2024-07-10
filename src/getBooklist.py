@@ -1,11 +1,14 @@
 import requests
 
-BASE_URL = 'http://127.0.0.1:5000'
+BASE_URL = 'http://192.168.50.191:5000'
 
 def getReserve():
-    url = f'{BASE_URL}/reservations'
-    response = requests.get(url)
-    bookList = response.json()
+    try:
+        url = f'{BASE_URL}/reservations'
+        response = requests.get(url)
+        bookList = response.json()
+    except:
+        return False
     
     return bookList
 
