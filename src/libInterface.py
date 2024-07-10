@@ -1,13 +1,16 @@
 from hal import hal_lcd as LCD
 from hal import hal_keypad as keypad
+from hal import hal_dc_motor as dc_motor
 from threading import Thread
 import lib_loc as library
 import time
 import getBooklist
 import parseBooklist
+import collection
 
 lcd = LCD.lcd()
 lcd.lcd_clear()
+dc_motor.init()
 
 def key_pressed(key):
     global password
@@ -81,9 +84,9 @@ def pageOptions():
 
     return option
 
-
 def loc_loop():
     global password
+    global borrowList
     session = 0
     option = 0
     
@@ -110,6 +113,14 @@ def loc_loop():
                 lcd.lcd_clear()
                 lcd.lcd_display_string('Collect', 1)
 
+                if person[0] + '&' + person[1] in borrowList:
+                    noOfBorrowed = len(borrowList[person[0] + '&' + person[1]])
+                else:
+                    noOfBorrowed = 0
+                borrowList = collection.collectBook(person, userLoc, bookList, noOfBorrowed)
+                print(borrowList)
+                session = 0
+
             elif option == 2:
                 lcd.lcd_clear()
                 lcd.lcd_display_string('Return', 1)
@@ -120,6 +131,7 @@ def loc_loop():
                 lcd.lcd_clear()
                 lcd.lcd_display_string('Pay Fine', 1)
         
+            lcd.lcd_clear()
 
 def getList():
     global bookList
@@ -138,7 +150,6 @@ def getList():
             checkChangeBorrow = borrowList
 
 def main():
-    global userLoc
     global password
     password = ''
     keypad.init(key_pressed)
