@@ -61,11 +61,33 @@ def auth():
                 lcd.lcd_clear()
                 return [False]
 
+def pageOptions():
+    global password
+    option = 0
+
+    while(option == 0):
+        time.sleep(1)
+
+        lcd.lcd_clear()
+        lcd.lcd_display_string('Collect press 1', 1)
+        lcd.lcd_display_string('Return press 2', 2)
+
+        time.sleep(1)
+
+        lcd.lcd_clear()
+        lcd.lcd_display_string('Extend press 3', 1)
+        lcd.lcd_display_string('Pay fine press 4', 2)
+        option = password
+
+    return option
+
+
 def loc_loop():
     global password
     session = 0
+    option = 0
     
-    while(session == 0):
+    while(True):
         userLoc = library.get_loc()
         setup(userLoc)
 
@@ -73,11 +95,31 @@ def loc_loop():
             session = 1
             print(userLoc)
             authenticate = auth()
+
             if authenticate[0] == False:
                 session = 0
 
-            elif authenticate[0] == True:
-                print(authenticate[1])
+        while(session == 1):
+            person = authenticate[1]
+            print(person)
+
+            if option == 0:
+                option = pageOptions()
+            
+            elif option == 1:
+                lcd.lcd_clear()
+                lcd.lcd_display_string('Collect', 1)
+
+            elif option == 2:
+                lcd.lcd_clear()
+                lcd.lcd_display_string('Return', 1)
+            elif option == 3:
+                lcd.lcd_clear()
+                lcd.lcd_display_string('Extend', 1)
+            elif option == 4:
+                lcd.lcd_clear()
+                lcd.lcd_display_string('Pay Fine', 1)
+        
 
 def getList():
     global bookList
