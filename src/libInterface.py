@@ -33,10 +33,10 @@ def auth():
     lcd.lcd_clear()
     lcd.lcd_display_string("Please scan your", 1)
     lcd.lcd_display_string("admin card      ", 2)
-    nameList = parseBooklist.getNameList(bookList)
     attmps = 1
 
     while(restart == True and attmps < 10):
+        nameList = parseBooklist.getNameList(bookList)
         password = 0
         adminNo = '1234567' #replace with camera
         response = parseBooklist.findPerson(nameList, adminNo)
