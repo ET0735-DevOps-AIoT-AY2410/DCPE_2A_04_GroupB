@@ -2,15 +2,19 @@ from hal import hal_lcd as LCD
 from hal import hal_keypad as keypad
 from hal import hal_dc_motor as dc_motor
 from threading import Thread
+from flask import Flask
 import lib_loc as library
 import time
 import getBooklist
 import parseBooklist
 import collection
+import removeBorrowed
 
 lcd = LCD.lcd()
 lcd.lcd_clear()
 dc_motor.init()
+
+app = Flask(__name__)
 
 def key_pressed(key):
     global password
@@ -66,6 +70,8 @@ def auth():
 
 def pageOptions():
     global password
+    global toReturnList
+    toReturnList = {}
     option = 0
 
     while(option == 0):
@@ -117,9 +123,11 @@ def loc_loop():
                     noOfBorrowed = len(borrowList[person[0] + '&' + person[1]])
                 else:
                     noOfBorrowed = 0
-                borrowList = collection.collectBook(person, userLoc, bookList, noOfBorrowed)
-                print(borrowList)
+                toReturnList = collection.collectBook(person, userLoc, bookList, noOfBorrowed)
+                borrowList = collection.combineList(borrowList, toReturnList)
+                print('borrowed', borrowList)
                 session = 0
+                password = 0
 
             elif option == 2:
                 lcd.lcd_clear()
@@ -131,7 +139,7 @@ def loc_loop():
                 lcd.lcd_clear()
                 lcd.lcd_display_string('Pay Fine', 1)
         
-            lcd.lcd_clear()
+            lcd.lcd_clear()        
 
 def getList():
     global bookList
@@ -162,6 +170,17 @@ def main():
 
     book_thread = Thread(target=getList)
     book_thread.start()
+
+    webthread = Thread(target=run)
+    webthread.start()
+
+@app.route('/', methods=['GET'])
+def about():
+    global toReturnList
+    return toReturnList
+
+def run():
+    app.run(host='0.0.0.0', port=5001)
     
 if __name__ == '__main__':
     main()
