@@ -40,7 +40,7 @@ def removeBook(id, book):
                 tempList.append(row)
 
     with open(file_path, 'w', newline='') as csvfile:
-        fieldnames = ['id', 'books', 'location', 'date', 'borrow?']
+        fieldnames = ['id', 'books', 'location', 'date']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
 
@@ -50,7 +50,6 @@ def removeBook(id, book):
 def changeToReserve(borrowList):
     for id in borrowList:
         for book in borrowList[id]:
-            #if book in 
             removeBook(id, book[0])
             addBook(id, book[0], 'borrowed', book[1])
 
