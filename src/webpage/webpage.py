@@ -6,7 +6,6 @@ import csv
 import os
 import readWriteBooks
 from threading import Thread
-import requests
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
@@ -106,7 +105,6 @@ def reserve():
 @app.route('/reservations', methods=['GET'])
 def get_reservations():
     booklist = readWriteBooks.loadBooks()
-    print(booklist)
     return jsonify(booklist)
 
 @app.route('/')
