@@ -1,14 +1,17 @@
 from hal import hal_lcd as LCD
 from hal import hal_keypad as keypad
 from hal import hal_dc_motor as dc_motor
+
+import time
 from threading import Thread
 from flask import Flask
+
 import lib_loc as library
-import time
 import getBooklist
 import parseBooklist
 import collection
 import removeBorrowed
+import returnBook
 
 lcd = LCD.lcd()
 lcd.lcd_clear()
@@ -93,6 +96,10 @@ def pageOptions():
 def loc_loop():
     global password
     global borrowList
+    global returnList
+    global returnIndex
+    borrowList = {}
+    returnList = {}
     session = 0
     option = 0
     
@@ -132,6 +139,24 @@ def loc_loop():
             elif option == 2:
                 lcd.lcd_clear()
                 lcd.lcd_display_string('Return', 1)
+                if person[0] + '&' + person[1] in borrowList and len(borrowList[person[0] + '&' + person[1]]) > 0:
+                    returnIndex = []
+                    while(password != '*'): 
+                        print(returnIndex)
+                        returnBook.displayBorrowed(borrowList, person)
+                    toReturnList = returnBook.returnBook(returnIndex, borrowList, person)
+
+                    print('returned', returnList)
+                    borrowList = removeBorrowed.remove(borrowList, toReturnList)
+                    print('borrowed', borrowList)
+                
+                else:
+                    lcd.lcd_display_string('No book borrowed', 1)
+                
+                password = 0
+                session = 0
+                option = 0
+                
             elif option == 3:
                 lcd.lcd_clear()
                 lcd.lcd_display_string('Extend', 1)
