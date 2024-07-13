@@ -1,4 +1,5 @@
 import time
+from datetime import datetime, timedelta
 from threading import Thread
 from hal import hal_lcd as LCD
 from hal import hal_keypad as keypad
@@ -17,15 +18,21 @@ def key_pressed(key):
     print(password)
     returnIndex.append(password)
 
-def extend(borrowList, person):
+def extend(returnIndex, borrowList, person):
     returnIndex.remove('*')
-    tempList = parseBooklist.getReserve(borrowList, person)
+    info = person[0] + '&' + person[1]
+    borrowList[info]
     
     for index in returnIndex:
-        tempList[int(index)-1][1] = tempList[int(index)-1][1].replace(getMin(tempList[int(index)-1][1]), str(int(getMin(tempList[int(index)-1][1]))+7))
-        tempList[int(index)-1][1] += 'E'
+        if index <= len(borrowList[info]) and index > 0:
+            borrowDate = datetime.strptime(borrowList[info][int(index)-1][1], '%Y-%m-%d %H:%M:%S')
+            newDate = borrowDate + timedelta(minutes=7)
+            newDate = datetime.strftime(newDate, '%Y-%m-%d %H:%M:%S')
 
-    return tempList
+            borrowList[info][int(index)-1][1] = newDate
+            borrowList[info][int(index)-1][1] += 'E'
+
+    return borrowList
 
 def display(borrowList, person):
     displayList = parseBooklist.getReserve(borrowList, person)
@@ -58,9 +65,7 @@ def main():
         display(egBorrowlist, person)
     print(returnIndex)
     
-    print(extend(egBorrowlist, person))
+    print(extend(returnIndex, egBorrowlist, person))
     
-    
-
 if __name__ == "__main__":
     main()
