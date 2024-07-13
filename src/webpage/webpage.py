@@ -2,8 +2,7 @@ from flask import Flask, request, jsonify, render_template, session
 from flask_cors import CORS
 from datetime import datetime, timedelta
 import logging
-import csv
-import os
+import userPasswordFine
 import readWriteBooks
 from threading import Thread
 
@@ -15,29 +14,7 @@ log.setLevel(logging.ERROR)
 
 app.secret_key = 'super_secret_key'
 
-def load_passwords():
-    passwords = {}
-    file_path = os.path.join(os.path.dirname(__file__), 'passwords.csv')
-    with open(file_path, newline='') as csvfile:
-        reader = csv.DictReader(csvfile)
-        for row in reader:
-            passwords[row['username']] = row['password']
-    return passwords
-
-def createAcc(username, password):
-    global passwords
-    file_path = os.path.join(os.path.dirname(__file__), 'passwords.csv')
-    with open(file_path, 'a', newline='') as csvfile:
-        fieldnames = ['username', 'password']
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        
-        if csvfile.tell() == 0:
-            writer.writeheader()
-        writer.writerow({'username': username, 'password': password})
-    
-    passwords = load_passwords()
-
-passwords = load_passwords()
+passwords = userPasswordFine.load_passwords()
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -67,6 +44,7 @@ def logout():
 
 @app.route('/signup', methods=['POST'])
 def signup():
+    global passwords
     data = request.get_json()
     identity = data.get('identity')
     password = data.get('password')
@@ -74,7 +52,8 @@ def signup():
     if identity in passwords:
         return jsonify({'success': False, 'message': 'Admin No. already used'})
     
-    createAcc(identity, password)
+    userPasswordFine.createAcc(identity, password) 
+    passwords = userPasswordFine.load_passwords()
     passwords[identity] = password
     return jsonify({'success': True, 'message': 'Account created successfully'})
 
