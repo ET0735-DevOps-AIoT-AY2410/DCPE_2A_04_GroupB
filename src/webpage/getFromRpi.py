@@ -10,9 +10,10 @@ def getReserve():
         response = requests.get(url)
         bookList = response.json()
 
-        if len(bookList[list(bookList.keys())[0]][0]) == 2:
+        if len(bookList[list(bookList.keys())[0]][0]) == 2: #Test borrowed Book format
             readWriteBooks.changeToReserve(bookList)
-        elif len(bookList) == 1:
+  
+        elif len(bookList) == 1: #Test returned book format
             for info in bookList:
                 for book in bookList[info]:
                     readWriteBooks.removeBook(info, book[0])
