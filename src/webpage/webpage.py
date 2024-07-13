@@ -19,12 +19,14 @@ passwords = userPasswordFine.load_passwords()
 @app.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
-    identity = data.get('identity')
+    name = str(data.get('user'))
+    admNo = str(data.get('identity'))
+    identity = name + '&' + admNo
     password = data.get('password')
     user = data.get('user')
     
     if identity in passwords and passwords[identity] == password:
-        session['identity'] = identity
+        session['identity'] = admNo
         session['name'] = user
         return jsonify({'success': True})
     else:
@@ -46,7 +48,9 @@ def logout():
 def signup():
     global passwords
     data = request.get_json()
-    identity = data.get('identity')
+    name = str(data.get('user'))
+    admNo = str(data.get('identity'))
+    identity = name + '&' + admNo
     password = data.get('password')
 
     if identity in passwords:
@@ -85,6 +89,11 @@ def reserve():
 def get_reservations():
     booklist = readWriteBooks.loadBooks()
     return jsonify(booklist)
+
+@app.route('/fines', methods=['GET'])
+def get_fines():
+    fineList = userPasswordFine.loadFine()
+    return jsonify(fineList)
 
 @app.route('/')
 def index():
