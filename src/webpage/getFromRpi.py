@@ -22,13 +22,11 @@ def getReserve():
         exit()
 
     except:
-        return [{}, {}]
-    
-    return bookList
+        pass
 
 def main():
     while(True):
-        print(getReserve())
+        getReserve()
         time.sleep(1)
 
 if __name__ == '__main__':

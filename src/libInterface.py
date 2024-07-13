@@ -6,7 +6,7 @@ import time
 from threading import Thread
 from flask import Flask
 
-import lib_loc as library
+import lib_loc
 import getBooklist
 import parseBooklist
 import collection
@@ -90,6 +90,8 @@ def pageOptions():
         lcd.lcd_clear()
         lcd.lcd_display_string('Extend press 3', 1)
         lcd.lcd_display_string('Pay fine press 4', 2)
+        time.sleep(1)
+
         option = password
 
     return option
@@ -156,7 +158,7 @@ def loc_loop():
                         print(returnIndex)
                         returnBook.displayBorrowed(borrowList, person)
                         lcd.lcd_clear()
-                        lcd.lcd_display_string('Press * to', 1)
+                        lcd.lcd_display_string("Press '*' to", 1)
                         lcd.lcd_display_string('continue', 2)
                         time.sleep(0.5)
                     toReturnList = returnBook.returnBook(returnIndex, borrowList, person)
@@ -182,7 +184,7 @@ def loc_loop():
                     while(password != '*'): 
                         extendTime.display(borrowList, person)
                         lcd.lcd_clear()
-                        lcd.lcd_display_string('Press * to', 1)
+                        lcd.lcd_display_string("Press '*' to", 1)
                         lcd.lcd_display_string('continue', 2)
                         time.sleep(0.5)
                     print(returnIndex)
