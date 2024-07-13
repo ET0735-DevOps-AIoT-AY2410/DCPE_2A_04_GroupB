@@ -7,6 +7,10 @@ def check_overdue_books(borrowed_books):
     for borrower_id, book_name in borrowed_books.items():
         for book in book_name:
             book_name, borrow_date_str = book
+
+            if borrow_date_str[-1:] == 'E':
+                borrow_date_str = borrow_date_str[:-1]
+                
             borrow_date = datetime.strptime(borrow_date_str, '%Y-%m-%d %H:%M:%S')
             return_date = borrow_date + timedelta(minutes=18)  
             if current_date > return_date:
@@ -30,7 +34,7 @@ def fining(borrowed_books):
     return user_fine
 
 def main():
-    borrowed_books= {'Test1&1234567': [['Book 1', '2024-07-03 14:21:23'], 
+    borrowed_books= {'Test1&1234567': [['Book 1', '2024-07-03 14:30:23E'], 
                                        ['Book 2', '2024-07-03 14:30:12'], 
                                        ['Book 3', '2024-07-03 14:30:12']],
                      'Test2&7654321': [['Book 1', '2024-07-03 14:30:32']]}
