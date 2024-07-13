@@ -1,6 +1,7 @@
 import requests
 import readWriteBooks
 import time
+import removeReserved
 
 BASE_URL = 'http://192.168.50.170:5001'
 
@@ -23,6 +24,10 @@ def getReserve():
 
     except:
         pass
+
+    finally:
+        reserveList = readWriteBooks.loadBooks()[0]
+        removeReserved.checkReserveOver(reserveList)
 
 def main():
     while(True):
