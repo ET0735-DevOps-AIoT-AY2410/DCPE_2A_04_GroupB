@@ -139,6 +139,7 @@ def loc_loop():
                     else:
                         noOfBorrowed = 0
                     toReturnList = collection.collectBook(person, userLoc, bookList, noOfBorrowed)
+                    bookList = removeBorrowed.remove(bookList, toReturnList)
                     print('borrowed', toReturnList)
                 
                 else:
@@ -162,9 +163,9 @@ def loc_loop():
                         lcd.lcd_display_string('continue', 2)
                         time.sleep(0.5)
                     toReturnList = returnBook.returnBook(returnIndex, borrowList, person)
+                    borrowList = removeBorrowed.remove(borrowList, toReturnList)
 
                     print('returned', returnList)
-                    borrowList = removeBorrowed.remove(borrowList, toReturnList)
                     print('borrowed', borrowList)
                 
                 else:

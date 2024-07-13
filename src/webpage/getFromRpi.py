@@ -1,7 +1,10 @@
 import requests
-import readWriteBooks
 import time
+
+import readWriteBooks
 import removeReserved
+import calcFine
+import userPasswordFine
 
 BASE_URL = 'http://192.168.50.170:5001'
 
@@ -25,9 +28,21 @@ def getReserve():
     except:
         pass
 
+    try:
+        url = f'{BASE_URL}/finepaid'
+        response = requests.get(url)
+        id = response.json()
+        userPasswordFine.addFine({id: 0})
+
+    except:
+        pass
+
     finally:
-        reserveList = readWriteBooks.loadBooks()[0]
-        removeReserved.checkReserveOver(reserveList)
+        data = readWriteBooks.loadBooks()
+        removeReserved.checkReserveOver(data[0])
+
+        fineList = calcFine.fining(data[1])
+        userPasswordFine.addFine(fineList)
 
 def main():
     while(True):

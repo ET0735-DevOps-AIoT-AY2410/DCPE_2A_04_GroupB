@@ -4,7 +4,6 @@ from datetime import datetime, timedelta
 import logging
 import userPasswordFine
 import readWriteBooks
-import calcFine
 from threading import Thread
 
 app = Flask(__name__)
@@ -93,10 +92,6 @@ def get_reservations():
 
 @app.route('/fines', methods=['GET'])
 def get_fines():
-    bookList = readWriteBooks.loadBooks()
-    
-    fineList = calcFine.fining(bookList[1])
-    userPasswordFine.addFine(fineList)
     fineList = userPasswordFine.loadFine()
     return jsonify(fineList)
 
