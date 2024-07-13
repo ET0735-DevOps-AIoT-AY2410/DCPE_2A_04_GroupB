@@ -96,16 +96,19 @@ def pageOptions():
 
 def loc_loop():
     global password
+    global bookList
     global borrowList
     global returnList
     global returnIndex
-    borrowList = {}
+    global fineList
+    global toReturnList
     returnList = {}
+    toReturnList = {}
     session = 0
     option = 0
     
     while(True):
-        userLoc = library.get_loc()
+        userLoc = lib_loc.get_loc()
         setup(userLoc)
 
         if password == '*':
@@ -119,6 +122,7 @@ def loc_loop():
         while(session == 1):
             person = authenticate[1]
             print(person)
+            id = person[0] + '&' + person[1]
 
             if option == 0:
                 option = pageOptions()
@@ -126,27 +130,35 @@ def loc_loop():
             elif option == 1:
                 lcd.lcd_clear()
                 lcd.lcd_display_string('Collect', 1)
-
-                if person[0] + '&' + person[1] in borrowList:
-                    noOfBorrowed = len(borrowList[person[0] + '&' + person[1]])
+                time.sleep(0.5)
+                if id in bookList and len(bookList[id]) > 0:
+                    if id in borrowList:
+                        noOfBorrowed = len(borrowList[id])
+                    else:
+                        noOfBorrowed = 0
+                    toReturnList = collection.collectBook(person, userLoc, bookList, noOfBorrowed)
+                    print('borrowed', toReturnList)
+                
                 else:
-                    noOfBorrowed = 0
-                toReturnList = collection.collectBook(person, userLoc, bookList, noOfBorrowed)
-                borrowList = collection.combineList(borrowList, toReturnList)
-                print('borrowed', borrowList)
-
+                    lcd.lcd_display_string('No book reserved', 1)
+                
                 session = 0
-                password = 0
+                option = 0
                 returnIndex = []
 
             elif option == 2:
                 lcd.lcd_clear()
                 lcd.lcd_display_string('Return', 1)
-                if person[0] + '&' + person[1] in borrowList and len(borrowList[person[0] + '&' + person[1]]) > 0:
+                time.sleep(0.5)
+                if id in borrowList and len(borrowList[id]) > 0:
                     returnIndex = []
                     while(password != '*'): 
                         print(returnIndex)
                         returnBook.displayBorrowed(borrowList, person)
+                        lcd.lcd_clear()
+                        lcd.lcd_display_string('Press * to', 1)
+                        lcd.lcd_display_string('continue', 2)
+                        time.sleep(0.5)
                     toReturnList = returnBook.returnBook(returnIndex, borrowList, person)
 
                     print('returned', returnList)
@@ -160,16 +172,22 @@ def loc_loop():
                 session = 0
                 option = 0
                 returnIndex = []
-                
+
             elif option == 3:
                 lcd.lcd_clear()
                 lcd.lcd_display_string('Extend', 1)
-                if person[0] + '&' + person[1] in borrowList and len(borrowList[person[0] + '&' + person[1]]) > 0:
+                time.sleep(0.5)
+                if id in borrowList and len(borrowList[id]) > 0:
                     returnIndex = []
                     while(password != '*'): 
                         extendTime.display(borrowList, person)
+                        lcd.lcd_clear()
+                        lcd.lcd_display_string('Press * to', 1)
+                        lcd.lcd_display_string('continue', 2)
+                        time.sleep(0.5)
                     print(returnIndex)
                     borrowList = extendTime.extend(returnIndex, borrowList, person)
+                    toReturnList = borrowList
                     
                     print('borrowed', borrowList)
                 
@@ -180,6 +198,7 @@ def loc_loop():
                 session = 0
                 option = 0
                 returnIndex = []
+
 
             elif option == 4:
                 lcd.lcd_clear()
