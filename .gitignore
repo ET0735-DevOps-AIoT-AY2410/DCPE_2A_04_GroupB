@@ -1,3 +1,5 @@
 src/__pycache__/
 src/hal/__pycache__
 src/webpage/__pycache__
+src/webpage/passwords.csv
+src/webpage/reserveList.csv
