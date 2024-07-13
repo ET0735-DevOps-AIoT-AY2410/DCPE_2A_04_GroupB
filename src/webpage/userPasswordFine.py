@@ -21,14 +21,14 @@ def createAcc(username, password):
             writer.writeheader()
         writer.writerow({'username': username, 'password': password, 'fine': 0})
 
-def addFine(username, amt):
+def addFine(fineList):
     tempList = []
     file_path = os.path.join(os.path.dirname(__file__), 'passwords.csv')
     with open(file_path, newline='') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
-            if row['username'] == username:
-                row['fine'] = amt
+            if row['username'] in fineList:
+                row['fine'] = fineList[row['username']]
             print(row)
             tempList.append(row)
 
@@ -39,3 +39,13 @@ def addFine(username, amt):
 
         for row in tempList:
             writer.writerow(row)
+
+def loadFine():
+    fines = {}
+    file_path = os.path.join(os.path.dirname(__file__), 'passwords.csv')
+    with open(file_path, newline='') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            if float(row['fine']) > 0:
+                fines[row['username']] = float(row['fine'])
+    return fines
