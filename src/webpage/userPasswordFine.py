@@ -29,7 +29,6 @@ def addFine(fineList):
         for row in reader:
             if row['username'] in fineList:
                 row['fine'] = fineList[row['username']]
-            print(row)
             tempList.append(row)
 
     with open(file_path, 'w', newline='') as csvfile:
