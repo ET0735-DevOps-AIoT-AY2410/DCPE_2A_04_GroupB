@@ -14,9 +14,28 @@ def createAcc(username, password):
     passwords = load_passwords()
     file_path = os.path.join(os.path.dirname(__file__), 'passwords.csv')
     with open(file_path, 'a', newline='') as csvfile:
-        fieldnames = ['username', 'password']
+        fieldnames = ['username', 'password', 'fine']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         
         if csvfile.tell() == 0:
             writer.writeheader()
-        writer.writerow({'username': username, 'password': password})
+        writer.writerow({'username': username, 'password': password, 'fine': 0})
+
+def addFine(username, amt):
+    tempList = []
+    file_path = os.path.join(os.path.dirname(__file__), 'passwords.csv')
+    with open(file_path, newline='') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            if row['username'] == username:
+                row['fine'] = amt
+            print(row)
+            tempList.append(row)
+
+    with open(file_path, 'w', newline='') as csvfile:
+        fieldnames = ['username', 'password', 'fine']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+
+        for row in tempList:
+            writer.writerow(row)
