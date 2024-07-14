@@ -6,7 +6,7 @@ import time
 from threading import Thread
 from flask import Flask
 
-import lib_loc as library
+import lib_loc
 import getBooklist
 import parseBooklist
 import collection
@@ -20,18 +20,18 @@ dc_motor.init()
 
 app = Flask(__name__)
 
-def key_pressed(key):
+def key_pressed(key):       #check keypad
     global password
     password = key
 
     print(password)
 
-def setup(location):
+def setup(location):        #check location
     output = "Location " + str(location)
     lcd.lcd_display_string(output, 1)
     lcd.lcd_display_string("Press '*'", 2)
 
-def auth():
+def auth():                 #scan id and authenticate
     global bookList
     global password
 
@@ -74,8 +74,6 @@ def auth():
 
 def pageOptions():
     global password
-    global toReturnList
-    toReturnList = {}
     option = 0
 
     while(option == 0):
@@ -90,22 +88,100 @@ def pageOptions():
         lcd.lcd_clear()
         lcd.lcd_display_string('Extend press 3', 1)
         lcd.lcd_display_string('Pay fine press 4', 2)
+        time.sleep(1)
+
         option = password
 
     return option
 
+def collectOption(person, id, userLoc):
+    global bookList
+    global borrowList
+    global toReturnList
+
+    lcd.lcd_clear()
+    lcd.lcd_display_string('Collect', 1)
+    time.sleep(0.5)
+    if id in bookList and len(bookList[id]) > 0:
+        if id in borrowList:
+            noOfBorrowed = len(borrowList[id])
+        else:
+            noOfBorrowed = 0
+        toReturnList = collection.collectBook(person, userLoc, bookList, noOfBorrowed)
+        bookList = removeBorrowed.remove(bookList, toReturnList)
+        print('borrowed', toReturnList)
+    
+    else:
+        lcd.lcd_display_string('No book reserved', 1)
+
+def returnOption(person, id):
+    global borrowList
+    global toReturnList
+    global password
+    global returnIndex
+
+    lcd.lcd_clear()
+    lcd.lcd_display_string('Return', 1)
+    time.sleep(0.5)
+    if id in borrowList and len(borrowList[id]) > 0:
+        returnIndex = []
+        while(password != '*'): 
+            print(returnIndex)
+            returnBook.displayBorrowed(borrowList, person)
+            lcd.lcd_clear()
+            lcd.lcd_display_string("Press '*' to", 1)
+            lcd.lcd_display_string('continue', 2)
+            time.sleep(0.5)
+        toReturnList = returnBook.returnBook(returnIndex, borrowList, person)
+        borrowList = removeBorrowed.remove(borrowList, toReturnList)
+
+        print('returned', toReturnList)
+        print('borrowed', borrowList)
+    
+    else:
+        lcd.lcd_display_string('No book borrowed', 1)
+
+def extendOption(person, id):
+    global borrowList
+    global toReturnList
+    global password
+    global returnIndex
+    
+    lcd.lcd_clear()
+    lcd.lcd_display_string('Extend', 1)
+    time.sleep(0.5)
+    if id in borrowList and len(borrowList[id]) > 0:
+        returnIndex = []
+        while(password != '*'): 
+            extendTime.display(borrowList, person)
+            lcd.lcd_clear()
+            lcd.lcd_display_string("Press '*' to", 1)
+            lcd.lcd_display_string('continue', 2)
+            time.sleep(0.5)
+        print(returnIndex)
+        borrowList = extendTime.extend(returnIndex, borrowList, person)
+        toReturnList = borrowList
+        
+        print('borrowed', borrowList)
+    
+    else:
+        lcd.lcd_display_string('No book borrowed', 1)
+
 def loc_loop():
     global password
+    global bookList
     global borrowList
     global returnList
     global returnIndex
-    borrowList = {}
+    global fineList
+    global toReturnList
     returnList = {}
+    toReturnList = {}
     session = 0
     option = 0
     
     while(True):
-        userLoc = library.get_loc()
+        userLoc = lib_loc.get_loc()
         setup(userLoc)
 
         if password == '*':
@@ -119,67 +195,34 @@ def loc_loop():
         while(session == 1):
             person = authenticate[1]
             print(person)
+            id = person[0] + '&' + person[1]
 
             if option == 0:
                 option = pageOptions()
             
             elif option == 1:
-                lcd.lcd_clear()
-                lcd.lcd_display_string('Collect', 1)
-
-                if person[0] + '&' + person[1] in borrowList:
-                    noOfBorrowed = len(borrowList[person[0] + '&' + person[1]])
-                else:
-                    noOfBorrowed = 0
-                toReturnList = collection.collectBook(person, userLoc, bookList, noOfBorrowed)
-                borrowList = collection.combineList(borrowList, toReturnList)
-                print('borrowed', borrowList)
-
+                collectOption(person, id, userLoc)
+                
                 session = 0
-                password = 0
+                option = 0
                 returnIndex = []
 
             elif option == 2:
-                lcd.lcd_clear()
-                lcd.lcd_display_string('Return', 1)
-                if person[0] + '&' + person[1] in borrowList and len(borrowList[person[0] + '&' + person[1]]) > 0:
-                    returnIndex = []
-                    while(password != '*'): 
-                        print(returnIndex)
-                        returnBook.displayBorrowed(borrowList, person)
-                    toReturnList = returnBook.returnBook(returnIndex, borrowList, person)
+                returnOption(person, id)
+                
+                password = 0
+                session = 0
+                option = 0
+                returnIndex = []
 
-                    print('returned', returnList)
-                    borrowList = removeBorrowed.remove(borrowList, toReturnList)
-                    print('borrowed', borrowList)
-                
-                else:
-                    lcd.lcd_display_string('No book borrowed', 1)
-                
-                password = 0
-                session = 0
-                option = 0
-                returnIndex = []
-                
             elif option == 3:
-                lcd.lcd_clear()
-                lcd.lcd_display_string('Extend', 1)
-                if person[0] + '&' + person[1] in borrowList and len(borrowList[person[0] + '&' + person[1]]) > 0:
-                    returnIndex = []
-                    while(password != '*'): 
-                        extendTime.display(borrowList, person)
-                    print(returnIndex)
-                    borrowList = extendTime.extend(returnIndex, borrowList, person)
-                    
-                    print('borrowed', borrowList)
-                
-                else:
-                    lcd.lcd_display_string('No book borrowed', 1)
+                extendOption(person, id)
                 
                 password = 0
                 session = 0
                 option = 0
                 returnIndex = []
+
 
             elif option == 4:
                 lcd.lcd_clear()
