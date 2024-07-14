@@ -258,20 +258,6 @@ def loc_loop():
 
             elif option == 3:
                 extendOption(person, id)
-                
-                
-                password = 0
-                session = 0
-                option = 0
-                returnIndex = []
-
-
-
-                password = 0
-                session = 0
-                option = 0
-                returnIndex = []
-
 
             elif option == 4:
                 fineOption(id)
