@@ -1,64 +1,66 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template, session
 from flask_cors import CORS
 from datetime import datetime, timedelta
 import logging
-import csv
-import os
+import userPasswordFine
+import readWriteBooks
+import calcFine
+from threading import Thread
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, supports_credentials=True)
 
-BASE_URL = 'http://127.0.0.1:5000'
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
 
-booklist = {}
-session = {}
+app.secret_key = 'super_secret_key'
 
-def load_passwords():
-    passwords = {}
-    file_path = os.path.join(os.path.dirname(__file__), 'passwords.csv')
-    print(file_path)
-    with open(file_path, newline='') as csvfile:
-        reader = csv.DictReader(csvfile)
-        for row in reader:
-            passwords[row['username']] = row['password']
-    return passwords
-    
-
-passwords = load_passwords()
+passwords = userPasswordFine.load_passwords()
 
 @app.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
-    identity = data.get('identity')
+    name = str(data.get('user'))
+    admNo = str(data.get('identity'))
+    identity = name + '&' + admNo
     password = data.get('password')
     user = data.get('user')
     
     if identity in passwords and passwords[identity] == password:
-        session['identity'] = identity
+        session['identity'] = admNo
         session['name'] = user
-        print(f'Session after login: {session}')
         return jsonify({'success': True})
     else:
         return jsonify({'success': False, 'message': 'Invalid identity or password'})
 
 @app.route('/session', methods=['GET'])
 def get_session():
-    print(f'Session on /session request: {session}')
     if 'identity' in session:
-        print("Session exists: TRUE")
         return jsonify({'loggedIn': True, 'identity': session['identity'], 'name': session['name']})
     else:
-        print("Session exists: FALSE")
         return jsonify({'loggedIn': False})
 
 @app.route('/logout', methods=['POST'])
 def logout():
-    session.pop('identity', None)
-    session.pop('name', None)
-    print('Session after logout:', session)
+    session.clear()
     return jsonify({'success': True})
+
+@app.route('/signup', methods=['POST'])
+def signup():
+    global passwords
+    data = request.get_json()
+    name = str(data.get('user'))
+    admNo = str(data.get('identity'))
+    identity = name + '&' + admNo
+    password = data.get('password')
+
+    if identity in passwords:
+        return jsonify({'success': False, 'message': 'Admin No. already used'})
+    
+    userPasswordFine.createAcc(identity, password) 
+    passwords = userPasswordFine.load_passwords()
+    passwords[identity] = password
+    return jsonify({'success': True, 'message': 'Account created successfully'})
 
 @app.route('/reserve', methods=['POST'])
 def reserve():
@@ -77,20 +79,42 @@ def reserve():
 
     print(f'Reservation made by {name} ({identity}) for the book "{book_title}" at {location}, {dateTime}')
     info = name + '&' + identity
-    booklist.setdefault(info, [])
-    
-    if len(booklist[info]) < 10:
-        booklist[info].append([book_title, location, dateTime])
-        print(booklist)
-    else:
-        return jsonify({'success': False})
 
-    # Respond with a success message
+    booklist = readWriteBooks.loadBooks()
+    if info not in booklist or len(booklist[info]) <= 10:
+        readWriteBooks.addBook(info, book_title, location, dateTime)
+
     return jsonify({'success': True})
 
 @app.route('/reservations', methods=['GET'])
 def get_reservations():
+    booklist = readWriteBooks.loadBooks()
     return jsonify(booklist)
+
+@app.route('/fines', methods=['GET'])
+def get_fines():
+    bookList = readWriteBooks.loadBooks()
+    
+    fineList = calcFine.fining(bookList[1])
+    userPasswordFine.addFine(fineList)
+    fineList = userPasswordFine.loadFine()
+    return jsonify(fineList)
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/create_account')
+def create_account():
+    return render_template('createAcc.html')
+
+@app.route('/main')
+def main():
+    return render_template('main.html')
+
+@app.route('/about')
+def about():
+    return render_template('about.html')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
