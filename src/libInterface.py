@@ -1,10 +1,9 @@
 from hal import hal_lcd as LCD
 from hal import hal_keypad as keypad
 from hal import hal_dc_motor as dc_motor
-
-import time
 from threading import Thread
-from flask import Flask
+from flask import Flask, jsonify
+import time
 
 import lib_loc
 import getBooklist
@@ -13,18 +12,24 @@ import collection
 import removeBorrowed
 import returnBook
 import extendTime
+import scanRFID
+import barcode
 
 lcd = LCD.lcd()
 lcd.lcd_clear()
 dc_motor.init()
+returnIndex = []
 
 app = Flask(__name__)
 
 def key_pressed(key):       #check keypad
     global password
+    global returnIndex
     password = key
 
     print(password)
+    returnIndex.append(password)
+    print(returnIndex)
 
 def setup(location):        #check location
     output = "Location " + str(location)
@@ -36,17 +41,23 @@ def auth():                 #scan id and authenticate
     global password
 
     verified = False
-    restart = True
+    image_path = 'barcode.jpg'
     
     lcd.lcd_clear()
     lcd.lcd_display_string("Please scan your", 1)
     lcd.lcd_display_string("admin card      ", 2)
     attmps = 1
 
-    while(restart == True and attmps < 10):
+    while(attmps < 10):
         nameList = parseBooklist.getNameList(bookList)
+        tempList = parseBooklist.getNameList(borrowList)
+        for i in tempList:
+            nameList.append(i)
         password = 0
-        adminNo = '1234567' #replace with camera
+        #barcode.capture_image(image_path)
+        adminNo = barcode.read_barcode(image_path)
+        adminNo = adminNo[-7:]
+        print(adminNo)
         response = parseBooklist.findPerson(nameList, adminNo)
         verified = response[0]
 
@@ -55,7 +66,6 @@ def auth():                 #scan id and authenticate
             lcd.lcd_clear()
             lcd.lcd_display_string(person[0], 1)
             lcd.lcd_display_string(person[1], 2)
-            restart = False
             
             return True, person
 
@@ -65,8 +75,8 @@ def auth():                 #scan id and authenticate
             lcd.lcd_display_string("Please press '#'", 1)
             lcd.lcd_display_string(output, 2)
             attmps += 1
-            while(password != '#'):  
-                restart = True
+            while(password != '#'): 
+                time.sleep(1)
    
             if attmps == 10:
                 lcd.lcd_clear()
@@ -76,7 +86,7 @@ def pageOptions():
     global password
     option = 0
 
-    while(option == 0):
+    while(option < 1 or option > 4):
         time.sleep(1)
 
         lcd.lcd_clear()
@@ -167,19 +177,59 @@ def extendOption(person, id):
     else:
         lcd.lcd_display_string('No book borrowed', 1)
 
+def fineOption(id):
+    global fineList
+    global finePaid
+
+    lcd.lcd_clear()
+    lcd.lcd_display_string('Pay Fine', 1)
+    time.sleep(0.5)
+    
+    if id in fineList and fineList[id] > 0:
+        lcd.lcd_clear()
+        lcd.lcd_display_string('Fine incurred:', 1)
+        lcd.lcd_display_string(f"${fineList[id]:.2f}",2)
+        
+        attmps = 1
+        while(attmps < 10):
+            card = scanRFID.scan()
+
+            if card == 'None':
+                lcd.lcd_clear()
+                output = 'to try again ('+ str(attmps) + ')'
+                lcd.lcd_display_string("Please press '#'", 1)
+                lcd.lcd_display_string(output, 2)
+                attmps += 1
+                while(password != '#'):  
+                    time.sleep(1)
+
+            else:
+                time.sleep(1)
+                lcd.lcd_clear()
+                lcd.lcd_display_string("Thank you", 1)
+                time.sleep(1)
+
+                finePaid = id
+                break
+    
+    else:
+        lcd.lcd_display_string('No fine incurred', 1)
+
 def loc_loop():
     global password
-    global bookList
-    global borrowList
-    global returnList
     global returnIndex
-    global fineList
+    global finePaid
     global toReturnList
-    returnList = {}
+
+    password = 0
+    returnIndex = []
+    
+    finePaid = ''
     toReturnList = {}
+
     session = 0
     option = 0
-    
+
     while(True):
         userLoc = lib_loc.get_loc()
         setup(userLoc)
@@ -202,22 +252,21 @@ def loc_loop():
             
             elif option == 1:
                 collectOption(person, id, userLoc)
-                
-                session = 0
-                option = 0
-                returnIndex = []
 
             elif option == 2:
                 returnOption(person, id)
+
+            elif option == 3:
+                extendOption(person, id)
+                
                 
                 password = 0
                 session = 0
                 option = 0
                 returnIndex = []
 
-            elif option == 3:
-                extendOption(person, id)
-                
+
+
                 password = 0
                 session = 0
                 option = 0
@@ -225,34 +274,40 @@ def loc_loop():
 
 
             elif option == 4:
-                lcd.lcd_clear()
-                lcd.lcd_display_string('Pay Fine', 1)
-                
-                session = 0
-                option = 0
-                returnIndex = []
+                fineOption(id)
+
+            password = 0
+            session = 0
+            option = 0
+            returnIndex = []
         
-            lcd.lcd_clear()        
+            lcd.lcd_clear()
+        
 
 def getList():
     global bookList
     global borrowList
+    global fineList
     checkChangeReserve = {}
     checkChangeBorrow = {}
+    checkChangeFine = {}
     while(True):
         data = getBooklist.getReserve()
         bookList = data[0]
         borrowList = data[1]
+        fineList = getBooklist.getFine()
+
         if bookList != checkChangeReserve:
             print('reserve: ', bookList)
             checkChangeReserve = bookList
         if borrowList != checkChangeBorrow:
             print('borrow: ',borrowList)
             checkChangeBorrow = borrowList
+        if fineList != checkChangeFine:
+            print('fines: ',fineList)
+            checkChangeFine = fineList
 
 def main():
-    global password
-    password = ''
     keypad.init(key_pressed)
 
     keypad_thread = Thread(target=keypad.get_key)
@@ -270,10 +325,19 @@ def main():
 @app.route('/', methods=['GET'])
 def about():
     global toReturnList
-    return toReturnList
+    tempReturn = toReturnList
+    toReturnList = {}
+    return jsonify(tempReturn)
+
+@app.route('/finepaid', methods=['GET'])
+def fine():
+    global finePaid
+    tempfinepaid = finePaid
+    finePaid = ''
+    return jsonify(tempfinepaid)
 
 def run():
     app.run(host='0.0.0.0', port=5001)
-    
+
 if __name__ == '__main__':
     main()
