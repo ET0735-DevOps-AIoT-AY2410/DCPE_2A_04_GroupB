@@ -18,6 +18,7 @@ def read_barcode(file_path):
     barcodes = decode(image)
     if len(barcodes) == 0:
         print('No barcode found')
+        return '0000000000'
     for barcode in barcodes:
         barcode_data = barcode.data.decode('utf-8')
         barcode_type = barcode.type
