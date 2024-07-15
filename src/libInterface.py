@@ -253,20 +253,30 @@ def loc_loop():
             elif option == 1:
                 collectOption(person, id, userLoc)
 
+                password = 0
+                session = 0
+                option = 0
+                returnIndex = []
+
             elif option == 2:
                 returnOption(person, id)
 
+                password = 0
+                session = 0
+                option = 0
+                returnIndex = []
+
             elif option == 3:
                 extendOption(person, id)
+                
+                password = 0
+                session = 0
+                option = 0
+                returnIndex = []
 
             elif option == 4:
                 fineOption(id)
-
-            password = 0
-            session = 0
-            option = 0
-            returnIndex = []
-        
+            
             lcd.lcd_clear()
         
 
