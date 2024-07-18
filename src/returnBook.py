@@ -16,26 +16,26 @@ def key_pressed(key):
     print(password)
     returnIndex.append(password)
 
-def displayBorrowed(borrowList, person):
+def displayBorrowed(borrowList, person, books):
     displayList = parseBooklist.getReserve(borrowList, person)
     if len(displayList)%2 == 0:
         for i in range(len(displayList)):
             if i%2 == 1:
                 lcd.lcd_clear()
-                lcd.lcd_display_string(displayList[i-1][0] + ' press ' + str(i), 1)
-                lcd.lcd_display_string(displayList[i][0] + ' press ' + str(i+1), 2)
+                lcd.lcd_display_string(books[displayList[i-1][0]] + ' press ' + str(i), 1)
+                lcd.lcd_display_string(books[displayList[i][0]] + ' press ' + str(i+1), 2)
                 time.sleep(0.5)
 
     elif len(displayList)%2 == 1:
         for i in range(len(displayList)):
             if i%2 == 1 and i<(len(displayList)-1):
                 lcd.lcd_clear()
-                lcd.lcd_display_string(displayList[i-1][0] + ' press ' + str(i), 1)
-                lcd.lcd_display_string(displayList[i][0] + ' press ' + str(i+1), 2)
+                lcd.lcd_display_string(books[displayList[i-1][0]] + ' press ' + str(i), 1)
+                lcd.lcd_display_string(books[displayList[i][0]] + ' press ' + str(i+1), 2)
                 time.sleep(0.5)
             elif i == (len(displayList)-1):
                 lcd.lcd_clear()
-                lcd.lcd_display_string(displayList[i][0] + ' press ' + str(i+1), 1)
+                lcd.lcd_display_string(books[displayList[i][0]] + ' press ' + str(i+1), 1)
                 time.sleep(0.5)
 
 

@@ -20,6 +20,17 @@ lcd.lcd_clear()
 dc_motor.init()
 returnIndex = []
 
+books = {'1': 'Book 1',
+         '2': 'Book 2',
+         '3': 'Book 3',
+         '4': 'Book 4',
+         '5': 'Book 5',
+         '6': 'Book 6',
+         '7': 'Book 7',
+         '8': 'Book 8',
+         '9': 'Book 9',
+        '10': 'Book 10'}
+
 app = Flask(__name__)
 
 def key_pressed(key):       #check keypad
@@ -137,7 +148,7 @@ def returnOption(person, id):
         returnIndex = []
         while(password != '*'): 
             print(returnIndex)
-            returnBook.displayBorrowed(borrowList, person)
+            returnBook.displayBorrowed(borrowList, person, books)
             lcd.lcd_clear()
             lcd.lcd_display_string("Press '*' to", 1)
             lcd.lcd_display_string('continue', 2)
@@ -163,7 +174,7 @@ def extendOption(person, id):
     if id in borrowList and len(borrowList[id]) > 0:
         returnIndex = []
         while(password != '*'): 
-            extendTime.display(borrowList, person)
+            extendTime.display(borrowList, person, books)
             lcd.lcd_clear()
             lcd.lcd_display_string("Press '*' to", 1)
             lcd.lcd_display_string('continue', 2)

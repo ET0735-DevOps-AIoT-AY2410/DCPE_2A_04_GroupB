@@ -70,6 +70,7 @@ def reserve():
     data = request.get_json()
     name = data.get('name')
     identity = session['identity']
+    bookID = data.get('bookID')
     book_title = data.get('bookTitle')
     location = data.get('location')
     reserveTime = data.get('reserveTime')
@@ -77,12 +78,12 @@ def reserve():
     reserveDate = datetime.fromisoformat(reserveTime.replace('Z', '+00:00')) + timedelta(hours=8)
     dateTime = reserveDate.strftime('%Y-%m-%d %H:%M:%S')
 
-    print(f'Reservation made by {name} ({identity}) for the book "{book_title}" at {location}, {dateTime}')
+    print(f'Reservation made by {name} ({identity}) for the book "{book_title}"({bookID}) at {location}, {dateTime}')
     info = name + '&' + identity
 
     booklist = readWriteBooks.loadBooks()
     if info not in booklist or len(booklist[info]) <= 10:
-        readWriteBooks.addBook(info, book_title, location, dateTime)
+        readWriteBooks.addBook(info, bookID, location, dateTime)
 
     return jsonify({'success': True})
 

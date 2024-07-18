@@ -95,6 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
 function reserveBook(bookId) {
     const book = books.find(p => p.id === bookId);
     document.getElementById('reservedBook').value = book.bookTitle;
+    document.getElementById('id').value = book.id;
     on();
 }
 
@@ -105,6 +106,7 @@ document.getElementById('reservationForm').addEventListener('submit', function(e
     
     const formData = {
         name: document.getElementById('name').innerHTML,
+        bookID: document.getElementById('id').value,
         identity: document.getElementById('identity').innerHTML,
         bookTitle: document.getElementById('reservedBook').value,
         location: document.getElementById('location').value,
