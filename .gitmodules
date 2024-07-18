@@ -1,3 +1,6 @@
 [submodule "src/hal"]
 	path = src/hal
 	url = https://github.com/ET0735-DevOps-AIoT/hal.git
+[submodule "src/SPI-Py"]
+	path = src/SPI-Py
+	url = https://github.com/lthiery/SPI-Py
