@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 import logging
 import userPasswordFine
 import readWriteBooks
+from getFromRpi import getReserve
 from threading import Thread
 
 app = Flask(__name__)
@@ -92,6 +93,7 @@ def get_reservations():
 
 @app.route('/fines', methods=['GET'])
 def get_fines():
+    getReserve('http://192.168.50.170:5001')
     fineList = userPasswordFine.loadFine()
     return jsonify(fineList)
 

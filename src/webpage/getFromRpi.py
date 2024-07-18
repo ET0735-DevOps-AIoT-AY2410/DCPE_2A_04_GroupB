@@ -6,9 +6,7 @@ import removeReserved
 import calcFine
 import userPasswordFine
 
-BASE_URL = 'http://192.168.50.170:5001'
-
-def getReserve():
+def getReserve(BASE_URL):
     try:
         url = f'{BASE_URL}'
         response = requests.get(url)
@@ -46,7 +44,7 @@ def getReserve():
 
 def main():
     while(True):
-        getReserve()
+        getReserve('http://192.168.50.170:5001')
         time.sleep(1)
 
 if __name__ == '__main__':
