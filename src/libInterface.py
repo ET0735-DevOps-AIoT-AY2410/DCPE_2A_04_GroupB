@@ -251,7 +251,13 @@ def loc_loop():
                 option = pageOptions()
             
             elif option == 1:
-                collectOption(person, id, userLoc)
+                if id not in fineList:
+                    collectOption(person, id, userLoc)
+                else:
+                    lcd.lcd_clear()
+                    lcd.lcd_display_string("Please pay fine", 1)
+                    lcd.lcd_display_string("first", 2)
+                    time.sleep(1)
 
                 password = 0
                 session = 0
@@ -267,7 +273,13 @@ def loc_loop():
                 returnIndex = []
 
             elif option == 3:
-                extendOption(person, id)
+                if id not in fineList:
+                    extendOption(person, id)
+                else:
+                    lcd.lcd_clear()
+                    lcd.lcd_display_string("Please pay fine", 1)
+                    lcd.lcd_display_string("first", 2)
+                    time.sleep(1)
                 
                 password = 0
                 session = 0
@@ -276,6 +288,11 @@ def loc_loop():
 
             elif option == 4:
                 fineOption(id)
+                
+                password = 0
+                session = 0
+                option = 0
+                returnIndex = []
             
             lcd.lcd_clear()
         

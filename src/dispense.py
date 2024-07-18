@@ -6,7 +6,6 @@ from hal import hal_dc_motor as dc_motor
 
 def dispenseBook():
     servo.init()
-    dc_motor.init()
 
     lcd = LCD.lcd()
     lcd.lcd_clear()
@@ -32,6 +31,7 @@ def dispenseBook():
     time.sleep(1)
 
 def main():
+    dc_motor.init()
     dispenseBook()
 
 if __name__ == '__main__':
