@@ -18,7 +18,7 @@ def getFine():
         response = requests.get(url)
         fineList = response.json()
     except:
-        return {}
+        return [{}, {}]
     
     return fineList
 

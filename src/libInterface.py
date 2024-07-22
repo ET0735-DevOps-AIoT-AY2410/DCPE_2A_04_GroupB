@@ -48,7 +48,7 @@ def setup(location):        #check location
     lcd.lcd_display_string("Press '*'", 2)
 
 def auth():                 #scan id and authenticate
-    global bookList
+    global reserveList
     global password
 
     verified = False
@@ -60,7 +60,7 @@ def auth():                 #scan id and authenticate
     attmps = 1
 
     while(attmps < 10):
-        nameList = parseBooklist.getNameList(bookList)
+        nameList = parseBooklist.getNameList(reserveList)
         tempList = parseBooklist.getNameList(borrowList)
         for i in tempList:
             nameList.append(i)
@@ -116,20 +116,20 @@ def pageOptions():
     return option
 
 def collectOption(person, id, userLoc):
-    global bookList
+    global reserveList
     global borrowList
     global toReturnList
 
     lcd.lcd_clear()
     lcd.lcd_display_string('Collect', 1)
     time.sleep(0.5)
-    if id in bookList and len(bookList[id]) > 0:
+    if id in reserveList and len(reserveList[id]) > 0:
         if id in borrowList:
             noOfBorrowed = len(borrowList[id])
         else:
             noOfBorrowed = 0
-        toReturnList = collection.collectBook(person, userLoc, bookList, noOfBorrowed)
-        bookList = removeBorrowed.remove(bookList, toReturnList)
+        toReturnList = collection.collectBook(person, userLoc, reserveList, noOfBorrowed)
+        reserveList = removeBorrowed.remove(reserveList, toReturnList)
         print('borrowed', toReturnList)
     
     else:
@@ -189,17 +189,18 @@ def extendOption(person, id):
         lcd.lcd_display_string('No book borrowed', 1)
 
 def fineOption(id):
-    global fineList
+    global userFine
     global finePaid
+    global fineList
 
     lcd.lcd_clear()
     lcd.lcd_display_string('Pay Fine', 1)
     time.sleep(0.5)
     
-    if id in fineList and fineList[id] > 0:
+    if id in userFine and userFine[id] > 0:
         lcd.lcd_clear()
         lcd.lcd_display_string('Fine incurred:', 1)
-        lcd.lcd_display_string(f"${fineList[id]:.2f}",2)
+        lcd.lcd_display_string(f"${userFine[id]:.2f}",2)
         
         attmps = 1
         while(attmps < 10):
@@ -262,7 +263,7 @@ def loc_loop():
                 option = pageOptions()
             
             elif option == 1:
-                if id not in fineList:
+                if id not in userFine:
                     collectOption(person, id, userLoc)
                 else:
                     lcd.lcd_clear()
@@ -284,7 +285,7 @@ def loc_loop():
                 returnIndex = []
 
             elif option == 3:
-                if id not in fineList:
+                if id not in userFine:
                     extendOption(person, id)
                 else:
                     lcd.lcd_clear()
@@ -309,26 +310,35 @@ def loc_loop():
         
 
 def getList():
-    global bookList
+    global reserveList
     global borrowList
     global fineList
+    global userFine
+
     checkChangeReserve = {}
     checkChangeBorrow = {}
+    checkChangeUserFine = {}
     checkChangeFine = {}
+
     while(True):
         data = getBooklist.getReserve()
-        bookList = data[0]
+        reserveList = data[0]
         borrowList = data[1]
-        fineList = getBooklist.getFine()
+        fineData = getBooklist.getFine()
+        userFine = fineData[0]
+        fineList = fineData[1]
 
-        if bookList != checkChangeReserve:
-            print('reserve: ', bookList)
-            checkChangeReserve = bookList
+        if reserveList != checkChangeReserve:
+            print('reserve: ', reserveList)
+            checkChangeReserve = reserveList
         if borrowList != checkChangeBorrow:
-            print('borrow: ',borrowList)
+            print('borrow: ', borrowList)
             checkChangeBorrow = borrowList
+        if userFine != checkChangeUserFine:
+            print('user fines: ', userFine)
+            checkChangeUserFine = userFine
         if fineList != checkChangeFine:
-            print('fines: ',fineList)
+            print('fines: ', fineList)
             checkChangeFine = fineList
 
 def main():

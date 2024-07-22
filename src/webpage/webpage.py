@@ -5,7 +5,7 @@ import logging
 import userPasswordFine
 import readWriteBooks
 from getFromRpi import getReserve
-from threading import Thread
+from calcFine import check_overdue_books
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
@@ -95,8 +95,9 @@ def get_reservations():
 @app.route('/fines', methods=['GET'])
 def get_fines():
     getReserve('http://192.168.50.170:5001')
+    booklist = readWriteBooks.loadBooks()
     fineList = userPasswordFine.loadFine()
-    return jsonify(fineList)
+    return jsonify([fineList, check_overdue_books(booklist[1])])
 
 @app.route('/')
 def index():
