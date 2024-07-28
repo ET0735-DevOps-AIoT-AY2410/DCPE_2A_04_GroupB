@@ -20,7 +20,7 @@ lcd.lcd_clear()
 dc_motor.init()
 returnIndex = []
 
-books = {'1': 'Book 1',
+dictionary = {'1': 'Book 1',
          '2': 'Book 2',
          '3': 'Book 3',
          '4': 'Book 4',
@@ -34,12 +34,12 @@ books = {'1': 'Book 1',
 app = Flask(__name__)
 
 def key_pressed(key):       #check keypad
-    global password
+    global inputKey
     global returnIndex
-    password = key
+    inputKey = key
 
-    print(password)
-    returnIndex.append(password)
+    print(inputKey)
+    returnIndex.append(inputKey)
     print(returnIndex)
 
 def setup(location):        #check location
@@ -48,8 +48,8 @@ def setup(location):        #check location
     lcd.lcd_display_string("Press '*'", 2)
 
 def auth():                 #scan id and authenticate
-    global bookList
-    global password
+    global reserveList
+    global inputKey
 
     verified = False
     image_path = 'barcode.jpg'
@@ -60,11 +60,11 @@ def auth():                 #scan id and authenticate
     attmps = 1
 
     while(attmps < 10):
-        nameList = parseBooklist.getNameList(bookList)
+        nameList = parseBooklist.getNameList(reserveList)
         tempList = parseBooklist.getNameList(borrowList)
         for i in tempList:
             nameList.append(i)
-        password = 0
+        inputKey = 0
         #barcode.capture_image(image_path)
         adminNo = barcode.read_barcode(image_path)
         adminNo = adminNo[-7:]
@@ -86,7 +86,7 @@ def auth():                 #scan id and authenticate
             lcd.lcd_display_string("Please press '#'", 1)
             lcd.lcd_display_string(output, 2)
             attmps += 1
-            while(password != '#'): 
+            while(inputKey != '#'): 
                 time.sleep(1)
    
             if attmps == 10:
@@ -94,7 +94,7 @@ def auth():                 #scan id and authenticate
                 return [False]
 
 def pageOptions():
-    global password
+    global inputKey
     option = 0
 
     while(option < 1 or option > 4):
@@ -111,25 +111,30 @@ def pageOptions():
         lcd.lcd_display_string('Pay fine press 4', 2)
         time.sleep(1)
 
-        option = password
+        option = inputKey
 
     return option
 
 def collectOption(person, id, userLoc):
-    global bookList
+    global reserveList
     global borrowList
     global toReturnList
 
     lcd.lcd_clear()
     lcd.lcd_display_string('Collect', 1)
     time.sleep(0.5)
-    if id in bookList and len(bookList[id]) > 0:
+    if id in reserveList and len(reserveList[id]) > 0:
         if id in borrowList:
             noOfBorrowed = len(borrowList[id])
         else:
             noOfBorrowed = 0
-        toReturnList = collection.collectBook(person, userLoc, bookList, noOfBorrowed)
-        bookList = removeBorrowed.remove(bookList, toReturnList)
+        toReturnList = collection.collectBook(person, userLoc, reserveList, noOfBorrowed)
+        reserveList = removeBorrowed.remove(reserveList, toReturnList)
+
+        lcd.lcd_display_string("Books collected", 1)
+        lcd.lcd_display_string('successfully', 2)
+        time.sleep(0.5)
+
         print('borrowed', toReturnList)
     
     else:
@@ -138,7 +143,7 @@ def collectOption(person, id, userLoc):
 def returnOption(person, id):
     global borrowList
     global toReturnList
-    global password
+    global inputKey
     global returnIndex
 
     lcd.lcd_clear()
@@ -146,15 +151,19 @@ def returnOption(person, id):
     time.sleep(0.5)
     if id in borrowList and len(borrowList[id]) > 0:
         returnIndex = []
-        while(password != '*'): 
+        while(inputKey != '*'): 
             print(returnIndex)
-            returnBook.displayBorrowed(borrowList, person, books)
+            returnBook.displayBorrowed(borrowList, person, dictionary)
             lcd.lcd_clear()
             lcd.lcd_display_string("Press '*' to", 1)
             lcd.lcd_display_string('continue', 2)
             time.sleep(0.5)
         toReturnList = returnBook.returnBook(returnIndex, borrowList, person)
         borrowList = removeBorrowed.remove(borrowList, toReturnList)
+
+        lcd.lcd_display_string("Books returned", 1)
+        lcd.lcd_display_string('successfully', 2)
+        time.sleep(0.5)
 
         print('returned', toReturnList)
         print('borrowed', borrowList)
@@ -165,7 +174,7 @@ def returnOption(person, id):
 def extendOption(person, id):
     global borrowList
     global toReturnList
-    global password
+    global inputKey
     global returnIndex
     
     lcd.lcd_clear()
@@ -173,8 +182,8 @@ def extendOption(person, id):
     time.sleep(0.5)
     if id in borrowList and len(borrowList[id]) > 0:
         returnIndex = []
-        while(password != '*'): 
-            extendTime.display(borrowList, person, books)
+        while(inputKey != '*'): 
+            extendTime.display(borrowList, person, dictionary)
             lcd.lcd_clear()
             lcd.lcd_display_string("Press '*' to", 1)
             lcd.lcd_display_string('continue', 2)
@@ -182,27 +191,41 @@ def extendOption(person, id):
         print(returnIndex)
         borrowList = extendTime.extend(returnIndex, borrowList, person)
         toReturnList = borrowList
-        
+
+        lcd.lcd_display_string("Books extended", 1)
+        lcd.lcd_display_string('successfully', 2)
+        time.sleep(0.5)
+
         print('borrowed', borrowList)
     
     else:
         lcd.lcd_display_string('No book borrowed', 1)
 
 def fineOption(id):
-    global fineList
+    global userFine
     global finePaid
+    global fineList
 
     lcd.lcd_clear()
     lcd.lcd_display_string('Pay Fine', 1)
     time.sleep(0.5)
+
+    overdueFlag = 0
+    overdueList = []
     
-    if id in fineList and fineList[id] > 0:
+    if id in userFine and userFine[id] > 0:
         lcd.lcd_clear()
         lcd.lcd_display_string('Fine incurred:', 1)
-        lcd.lcd_display_string(f"${fineList[id]:.2f}",2)
+        lcd.lcd_display_string(f"${userFine[id]:.2f}",2)
+        time.sleep(0.5)
+
+        for overdueBook in fineList:
+            if id == overdueBook[2]:
+                overdueFlag += 1
+                overdueList.append(overdueBook)
         
         attmps = 1
-        while(attmps < 10):
+        while(attmps < 10 and overdueFlag == 0):
             card = scanRFID.scan()
 
             if card == 'None':
@@ -211,7 +234,7 @@ def fineOption(id):
                 lcd.lcd_display_string("Please press '#'", 1)
                 lcd.lcd_display_string(output, 2)
                 attmps += 1
-                while(password != '#'):  
+                while(inputKey != '#'):  
                     time.sleep(1)
 
             else:
@@ -221,18 +244,28 @@ def fineOption(id):
                 time.sleep(1)
 
                 finePaid = id
-                break
+                return
+
+        lcd.lcd_clear()
+        lcd.lcd_display_string("Pls return the", 1)
+        lcd.lcd_display_string("following 1st:", 2)
+        time.sleep(0.5)
+
+        for overdueBook in overdueList:
+            lcd.lcd_clear()
+            lcd.lcd_display_string(dictionary[overdueBook[0]], 1)
+            time.sleep(0.75)
     
     else:
         lcd.lcd_display_string('No fine incurred', 1)
 
 def loc_loop():
-    global password
+    global inputKey
     global returnIndex
     global finePaid
     global toReturnList
 
-    password = 0
+    inputKey = 0
     returnIndex = []
     
     finePaid = ''
@@ -245,7 +278,7 @@ def loc_loop():
         userLoc = lib_loc.get_loc()
         setup(userLoc)
 
-        if password == '*':
+        if inputKey == '*':
             session = 1
             print(userLoc)
             authenticate = auth()
@@ -262,7 +295,7 @@ def loc_loop():
                 option = pageOptions()
             
             elif option == 1:
-                if id not in fineList:
+                if id not in userFine:
                     collectOption(person, id, userLoc)
                 else:
                     lcd.lcd_clear()
@@ -270,7 +303,7 @@ def loc_loop():
                     lcd.lcd_display_string("first", 2)
                     time.sleep(1)
 
-                password = 0
+                inputKey = 0
                 session = 0
                 option = 0
                 returnIndex = []
@@ -278,13 +311,13 @@ def loc_loop():
             elif option == 2:
                 returnOption(person, id)
 
-                password = 0
+                inputKey = 0
                 session = 0
                 option = 0
                 returnIndex = []
 
             elif option == 3:
-                if id not in fineList:
+                if id not in userFine:
                     extendOption(person, id)
                 else:
                     lcd.lcd_clear()
@@ -292,7 +325,7 @@ def loc_loop():
                     lcd.lcd_display_string("first", 2)
                     time.sleep(1)
                 
-                password = 0
+                inputKey = 0
                 session = 0
                 option = 0
                 returnIndex = []
@@ -300,7 +333,7 @@ def loc_loop():
             elif option == 4:
                 fineOption(id)
                 
-                password = 0
+                inputKey = 0
                 session = 0
                 option = 0
                 returnIndex = []
@@ -309,26 +342,35 @@ def loc_loop():
         
 
 def getList():
-    global bookList
+    global reserveList
     global borrowList
     global fineList
+    global userFine
+
     checkChangeReserve = {}
     checkChangeBorrow = {}
+    checkChangeUserFine = {}
     checkChangeFine = {}
+
     while(True):
         data = getBooklist.getReserve()
-        bookList = data[0]
+        reserveList = data[0]
         borrowList = data[1]
-        fineList = getBooklist.getFine()
+        fineData = getBooklist.getFine()
+        userFine = fineData[0]
+        fineList = fineData[1]
 
-        if bookList != checkChangeReserve:
-            print('reserve: ', bookList)
-            checkChangeReserve = bookList
+        if reserveList != checkChangeReserve:
+            print('reserve: ', reserveList)
+            checkChangeReserve = reserveList
         if borrowList != checkChangeBorrow:
-            print('borrow: ',borrowList)
+            print('borrow: ', borrowList)
             checkChangeBorrow = borrowList
+        if userFine != checkChangeUserFine:
+            print('user fines: ', userFine)
+            checkChangeUserFine = userFine
         if fineList != checkChangeFine:
-            print('fines: ',fineList)
+            print('fines: ', fineList)
             checkChangeFine = fineList
 
 def main():

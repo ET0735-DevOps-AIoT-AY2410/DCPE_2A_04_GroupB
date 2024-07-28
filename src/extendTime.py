@@ -34,13 +34,18 @@ def extend(returnIndex, borrowList, person):
 
     return borrowList
 
-def display(borrowList, person, books):
+def display(borrowList, person, dictionary):
     displayList = parseBooklist.getReserve(borrowList, person)
     for i in range(len(displayList)):
         if displayList[i][1][-1:] != 'E':
             lcd.lcd_clear()
-            lcd.lcd_display_string(books[displayList[i][0]] + ' press ' + str(i+1), 1)
+            lcd.lcd_display_string(dictionary[displayList[i][0]] + ' press ' + str(i+1), 1)
             lcd.lcd_display_string(f"return by {int(getMin(displayList[i][1])) + 7}", 2)
+            time.sleep(0.5)
+        elif displayList[i][1][-1:] == 'E':
+            lcd.lcd_clear()
+            lcd.lcd_display_string(dictionary[displayList[i][0]], 1)
+            lcd.lcd_display_string("already extended", 2)
             time.sleep(0.5)
     
     return

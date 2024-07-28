@@ -5,25 +5,25 @@ from hal import hal_lcd as LCD
 
 lcd = LCD.lcd()
 
-def collectBook(person, location, bookList, noOfBorrowed):
+def collectBook(person, location, reserveList, noOfBorrowed):
     borrowList = {}
     info = person[0] + '&' + person[1]
-    tempBookList = bookList[info]
+    tempReserveList = reserveList[info]
     flag = 0
     
     borrowList.setdefault(info, [])
-    for i in range(len(tempBookList)):
-        if tempBookList[i][1] == ('Location ' + str(location)):
-            tempBookList[i].pop(1)
-            tempBookList[i][1] = (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
+    for i in range(len(tempReserveList)):
+        if tempReserveList[i][1] == ('Location ' + str(location)):
+            tempReserveList[i].pop(1)
+            tempReserveList[i][1] = (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
 
             if len(borrowList[info]) + noOfBorrowed < 10:
-                borrowList[info].append(tempBookList[i])
+                borrowList[info].append(tempReserveList[i])
             
             elif len(borrowList[info]) + noOfBorrowed >= 10:
                 flag = 1
     
-    if len(tempBookList) != 0:
+    if len(tempReserveList) != 0:
         if len(borrowList[info]) == 0 and flag == 0: 
             if location == 1:
                 output = "Go to Location 2"
@@ -60,7 +60,7 @@ def combineList(borrowList, tempList):
     return borrowList
 
 def main():
-    egBooklist = {'Test1&1234567': [['Book 1', 'Location 2', '2024-06-09 15:07:23'], 
+    egReservelist = {'Test1&1234567': [['Book 1', 'Location 2', '2024-06-09 15:07:23'], 
                                    ['Book 2', 'Location 2', '2024-06-09 15:08:12']],
                   'Test2&7654321': [['Book 1', 'Location 1', '2024-06-09 15:34:32']]}
     person = ['Test1', '1234567']
@@ -70,7 +70,7 @@ def main():
                     'Test2&7654321': [['Book 5', '2024-06-15 21:28:26']]}
 
     dc_motor.init()
-    tempList = collectBook(person, location, egBooklist, 0)
+    tempList = collectBook(person, location, egReservelist, 0)
     print(tempList)
 
     print(combineList(tempList, egBorrowlist))
