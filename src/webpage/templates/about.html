@@ -1,13 +1,18 @@
 <html>
 
     <head>
-
-    <title>About Page</title>
-
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>About Page</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     </head>
 
     <body>
-
-    This is the About Page</body>
+        <div class="about">
+            <a href="{{ url_for('main') }}">Back to reservations</a>
+        <p>This library has 2 locations which be reserved from.<br>
+             A maximum of 10 books can be borrowed at a time</p>
+        </div>
+    </body>
 
 </html>

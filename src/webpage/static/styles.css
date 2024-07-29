@@ -1,39 +1,95 @@
+/* Overall Page */
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    background: #f4e5df;
     margin: 0;
+    color: #333;
 }
 
+/* Container */
 .container {
     background-color: #fff;
     padding: 20px;
-    border-radius: 5px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     max-width: 400px;
     width: 100%;
-    margin: auto;
-    
+    margin: 50px auto;
+    text-align: center;
 }
 
+/* Header */
 header {
-    padding: 60px;
+    padding: 40px;
     text-align: center;
-    background: #1abc9c;
+    background: #8cdf68;
     color: white;
-    font-size: 30px;
-    display: block;
+    font-size: 24px;
+    border-radius: 8px 8px 0 0;
 }
 
 header h1 {
     margin: 0;
 }
 
-.signOut{
-    font-size: 10px;
+/* Form Group */
+.form-group {
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    color: #555;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.form-group button {
+    padding: 10px 20px;
+    background: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.form-group button:hover {
+    background: #0056b3;
+}
+
+/* Sign Out */
+.signOut {
+    font-size: 12px;
     text-align: right;
     margin: 10px;
 }
 
+/* About */
+.about {
+    font-size: 12px;
+    text-align: left;
+    margin: 10px;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+.navbar div {
+    margin-right: 10px;
+}
+
+/* Overlay */
 .overlay {
     position: fixed;
     display: none;
@@ -43,7 +99,7 @@ header h1 {
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(0,0,0,0.5);
+    background-color: rgba(0, 0, 0, 0.5);
     z-index: 2;
     cursor: pointer;
 }
@@ -51,64 +107,31 @@ header h1 {
 .overlay-box {
     background-color: #fff;
     padding: 20px;
-    border-radius: 5px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     max-width: 400px;
     width: 100%;
     display: none;
-
     margin: auto;
     position: fixed;
-    display: none;
     z-index: 3;
-    cursor: pointer;
-
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
 }
 
-
-h2 {
+.overlay-box h2 {
     margin-top: 0;
 }
 
-.form-group {
-    margin-bottom: 15px;
-}
-.form-group label {
-    display: block;
-    margin-bottom: 5px;
-}
-.form-group input {
-    width: 100%;
-    padding: 8px;
-    box-sizing: border-box;
-}
-.dropbtn{
-    width: 100%;
-    padding-top: 5px;
-    margin-bottom: 20px;
-    box-sizing: border-box;
-}
-.form-group button {
-    padding: 10px 15px;
-    background-color: #007BFF;
-    color: #fff;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-.form-group button:hover {
-    background-color: #0056b3;
-}
 .confirmation {
     display: none;
     margin-top: 20px;
+    color: #28a745;
+    font-weight: bold;
 }
 
-
-
+/* Main Page */
 main {
     padding: 20px;
 }
@@ -125,11 +148,15 @@ main {
     padding: 10px;
     width: 200px;
     text-align: center;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .book img {
     max-width: 100%;
     height: auto;
+    border-radius: 8px;
 }
 
 .book button {
@@ -137,10 +164,11 @@ main {
     color: white;
     border: none;
     padding: 10px;
+    border-radius: 4px;
     cursor: pointer;
+    transition: background 0.3s ease;
 }
 
 .book button:hover {
     background-color: #218838;
 }
-
