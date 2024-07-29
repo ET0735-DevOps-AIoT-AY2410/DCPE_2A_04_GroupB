@@ -50,9 +50,10 @@ def setup(location):        #check location
 def auth():                 #scan id and authenticate
     global reserveList
     global inputKey
+    global instruct
 
     verified = False
-    image_path = 'barcode.jpg'
+    image_path = 'scannedImage/barcode.jpg'
     
     lcd.lcd_clear()
     lcd.lcd_display_string("Please scan your", 1)
@@ -65,7 +66,8 @@ def auth():                 #scan id and authenticate
         for i in tempList:
             nameList.append(i)
         inputKey = 0
-        #barcode.capture_image(image_path)
+        instruct = 'scan'
+        time.sleep(2)
         adminNo = barcode.read_barcode(image_path)
         adminNo = adminNo[-7:]
         print(adminNo)
@@ -401,6 +403,13 @@ def fine():
     tempfinepaid = finePaid
     finePaid = ''
     return jsonify(tempfinepaid)
+
+@app.route('/cameraInstruct', methods=['GET'])
+def cam():
+    global instruct
+    tempInstruct = instruct
+    instruct = ''
+    return jsonify(tempInstruct)
 
 def run():
     app.run(host='0.0.0.0', port=5001)
