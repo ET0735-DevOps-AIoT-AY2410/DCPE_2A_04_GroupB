@@ -1,11 +1,7 @@
 import sys
-sys.path.insert(0, './src')
+sys.path.insert(0, './src/webpage')
 print(sys.path)
-import webpage.readWriteBooks as RWB
-
-RWB.changeToReserve
-RWB.loadBooks
-RWB.removeBook
+import readWriteBooks as RWB
 
 def test_loadBooks():
     expectedResult = ({}, {})
