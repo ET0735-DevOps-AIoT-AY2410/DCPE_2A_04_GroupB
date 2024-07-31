@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify, render_template, session
 from flask_cors import CORS
 from datetime import datetime, timedelta
 import logging
-import userPasswordFine
+import userInfo
 import readWriteBooks
 from getFromRpi import getReserve
 from calcFine import check_overdue_books
@@ -15,7 +15,7 @@ log.setLevel(logging.ERROR)
 
 app.secret_key = 'super_secret_key'
 
-passwords = userPasswordFine.load_passwords()
+passwords = userInfo.load_passwords()
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -57,8 +57,8 @@ def signup():
     if identity in passwords:
         return jsonify({'success': False, 'message': 'Admin No. already used'})
     
-    userPasswordFine.createAcc(identity, password) 
-    passwords = userPasswordFine.load_passwords()
+    userInfo.createAcc(identity, password) 
+    passwords = userInfo.load_passwords()
     passwords[identity] = password
     return jsonify({'success': True, 'message': 'Account created successfully'})
 
@@ -96,7 +96,7 @@ def get_reservations():
 def get_fines():
     getReserve('http://192.168.50.170:5001')
     booklist = readWriteBooks.loadBooks()
-    fineList = userPasswordFine.loadFine()
+    fineList = userInfo.loadFine()
     return jsonify([fineList, check_overdue_books(booklist[1])])
 
 @app.route('/')
