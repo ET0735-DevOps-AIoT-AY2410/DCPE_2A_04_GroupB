@@ -15,6 +15,8 @@ log.setLevel(logging.ERROR)
 
 app.secret_key = 'super_secret_key'
 
+BASE_URL = 'http://192.168.50.170:5001'
+
 passwords = userInfo.load_passwords()
 
 @app.route('/login', methods=['POST'])
@@ -94,7 +96,7 @@ def get_reservations():
 
 @app.route('/fines', methods=['GET'])
 def get_fines():
-    getReserve('http://192.168.50.170:5001')
+    getReserve(BASE_URL)
     booklist = readWriteBooks.loadBooks()
     fineList = userInfo.loadFine()
     return jsonify([fineList, check_overdue_books(booklist[1])])
