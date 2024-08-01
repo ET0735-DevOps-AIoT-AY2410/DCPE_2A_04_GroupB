@@ -4,6 +4,7 @@ from hal import hal_dc_motor as dc_motor
 from threading import Thread
 from flask import Flask, jsonify
 import time
+import logging
 
 import lib_loc
 import getBooklist
@@ -19,6 +20,10 @@ lcd = LCD.lcd()
 lcd.lcd_clear()
 dc_motor.init()
 returnIndex = []
+instruct = ''
+
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.ERROR)
 
 dictionary = {'1': 'Book 1',
          '2': 'Book 2',
@@ -65,9 +70,12 @@ def auth():                 #scan id and authenticate
         tempList = parseBooklist.getNameList(borrowList)
         for i in tempList:
             nameList.append(i)
+        tempList = parseBooklist.getNameList(userFine)
+        for i in tempList:
+            nameList.append(i)
         inputKey = 0
         instruct = 'scan'
-        time.sleep(2)
+        time.sleep(4)
         adminNo = barcode.read_barcode(image_path)
         adminNo = adminNo[-7:]
         print(adminNo)
@@ -98,8 +106,9 @@ def auth():                 #scan id and authenticate
 def pageOptions():
     global inputKey
     option = 0
+    inputKey = 0
 
-    while(option < 1 or option > 4):
+    while(option < 1 or option > 5):
         time.sleep(1)
 
         lcd.lcd_clear()
@@ -107,10 +116,20 @@ def pageOptions():
         lcd.lcd_display_string('Return press 2', 2)
 
         time.sleep(1)
+        option = inputKey
+        if (option >= 1 and option <= 5):
+            break
 
         lcd.lcd_clear()
         lcd.lcd_display_string('Extend press 3', 1)
         lcd.lcd_display_string('Pay fine press 4', 2)
+        time.sleep(1)
+        option = inputKey
+        if (option >= 1 and option <= 5):
+            break
+
+        lcd.lcd_clear()
+        lcd.lcd_display_string('Exit press 5', 1)
         time.sleep(1)
 
         option = inputKey
@@ -305,18 +324,8 @@ def loc_loop():
                     lcd.lcd_display_string("first", 2)
                     time.sleep(1)
 
-                inputKey = 0
-                session = 0
-                option = 0
-                returnIndex = []
-
             elif option == 2:
                 returnOption(person, id)
-
-                inputKey = 0
-                session = 0
-                option = 0
-                returnIndex = []
 
             elif option == 3:
                 if id not in userFine:
@@ -326,14 +335,11 @@ def loc_loop():
                     lcd.lcd_display_string("Please pay fine", 1)
                     lcd.lcd_display_string("first", 2)
                     time.sleep(1)
-                
-                inputKey = 0
-                session = 0
-                option = 0
-                returnIndex = []
 
             elif option == 4:
                 fineOption(id)
+                
+            elif option == 5:
                 
                 inputKey = 0
                 session = 0
