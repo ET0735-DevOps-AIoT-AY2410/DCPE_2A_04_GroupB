@@ -2,16 +2,16 @@ const ip = 'http://127.0.0.1:5000'
         
 //Books list
 const books = [
-    { id: 1, bookTitle: 'Book 1', image: 'https://via.placeholder.com/150' },
-    { id: 2, bookTitle: 'Book 2', image: 'https://via.placeholder.com/150' },
-    { id: 3, bookTitle: 'Book 3', image: 'https://via.placeholder.com/150' },
-    { id: 4, bookTitle: 'Book 4', image: 'https://via.placeholder.com/150' },
-    { id: 5, bookTitle: 'Book 5', image: 'https://via.placeholder.com/150' },
-    { id: 6, bookTitle: 'Book 6', image: 'https://via.placeholder.com/150' },
-    { id: 7, bookTitle: 'Book 7', image: 'https://via.placeholder.com/150' },
-    { id: 8, bookTitle: 'Book 8', image: 'https://via.placeholder.com/150' },
-    { id: 9, bookTitle: 'Book 9', image: 'https://via.placeholder.com/150' },
-    { id: 10, bookTitle: 'Book 10', image: 'https://via.placeholder.com/150' },
+    { id: 1, bookTitle: 'Book 1', image: 'https://m.media-amazon.com/images/I/81DFDGzHZqL._AC_UF1000,1000_QL80_.jpg' },
+    { id: 2, bookTitle: 'Book 2', image: 'https://m.media-amazon.com/images/I/51gLEj8UHzL._AC_UF1000,1000_QL80_.jpg' },
+    { id: 3, bookTitle: 'Book 3', image: 'https://m.media-amazon.com/images/I/91Yob+SFXdL._AC_UF1000,1000_QL80_.jpg' },
+    { id: 4, bookTitle: 'Book 4', image: 'https://m.media-amazon.com/images/I/61lBRY5h+NL._AC_UF1000,1000_QL80_.jpg' },
+    { id: 5, bookTitle: 'Book 5', image: 'https://m.media-amazon.com/images/I/915SPe6hrfL._SY342_.jpg' },
+    { id: 6, bookTitle: 'Book 6', image: 'https://m.media-amazon.com/images/I/91NPng6lBsL._AC_UF1000,1000_QL80_.jpg' },
+    { id: 7, bookTitle: 'Book 7', image: 'https://www.hoddereducation.sg/productCovers/9789810631307.jpg' },
+    { id: 8, bookTitle: 'Book 8', image: 'https://www.hoddereducation.sg/productCovers/9789810631154.jpg' },
+    { id: 9, bookTitle: 'Book 9', image: 'https://m.media-amazon.com/images/I/612ADI+BVlL._AC_UF1000,1000_QL80_.jpg' },
+    { id: 10, bookTitle: 'Book 10', image: 'https://m.media-amazon.com/images/I/61KPPB-34FL._AC_UF1000,1000_QL80_.jpg' },
 ];
 
 

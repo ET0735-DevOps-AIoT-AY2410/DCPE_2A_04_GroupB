@@ -4,6 +4,8 @@ from hal import hal_dc_motor as dc_motor
 from threading import Thread
 from flask import Flask, jsonify
 import time
+import datetime
+import logging
 
 import lib_loc
 import getBooklist
@@ -18,7 +20,18 @@ import barcode
 lcd = LCD.lcd()
 lcd.lcd_clear()
 dc_motor.init()
+
+BASE_URL = 'http://172.23.17.77:5000'
+
 returnIndex = []
+instruct = ''
+fineList = []
+borrowList = {}
+reserveList = {}
+userFine = {}
+
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.ERROR)
 
 dictionary = {'1': 'Book 1',
          '2': 'Book 2',
@@ -50,9 +63,10 @@ def setup(location):        #check location
 def auth():                 #scan id and authenticate
     global reserveList
     global inputKey
+    global instruct
 
     verified = False
-    image_path = 'barcode.jpg'
+    image_path = 'scannedImage/barcode.jpg'
     
     lcd.lcd_clear()
     lcd.lcd_display_string("Please scan your", 1)
@@ -64,8 +78,12 @@ def auth():                 #scan id and authenticate
         tempList = parseBooklist.getNameList(borrowList)
         for i in tempList:
             nameList.append(i)
+        tempList = parseBooklist.getNameList(userFine)
+        for i in tempList:
+            nameList.append(i)
         inputKey = 0
-        #barcode.capture_image(image_path)
+        instruct = 'scan'
+        time.sleep(4)
         adminNo = barcode.read_barcode(image_path)
         adminNo = adminNo[-7:]
         print(adminNo)
@@ -96,8 +114,11 @@ def auth():                 #scan id and authenticate
 def pageOptions():
     global inputKey
     option = 0
+    inputKey = 0
+    
+    sessionTime = datetime.now()
 
-    while(option < 1 or option > 4):
+    while(option < 1 or option > 5):
         time.sleep(1)
 
         lcd.lcd_clear()
@@ -105,13 +126,34 @@ def pageOptions():
         lcd.lcd_display_string('Return press 2', 2)
 
         time.sleep(1)
+        option = inputKey
+        if (option >= 1 and option <= 5):
+            break
 
         lcd.lcd_clear()
         lcd.lcd_display_string('Extend press 3', 1)
         lcd.lcd_display_string('Pay fine press 4', 2)
         time.sleep(1)
+        option = inputKey
+        if (option >= 1 and option <= 5):
+            break
+
+        lcd.lcd_clear()
+        lcd.lcd_display_string('Exit press 5', 1)
+        time.sleep(1)
 
         option = inputKey
+
+        currentTime = datetime.now()
+        delta = currentTime - sessionTime
+        min = round(delta.total_seconds())/60
+        if min == 1:
+            lcd.lcd_clear()
+            lcd.lcd_display_string('Session timed', 1)
+            lcd.lcd_display_string('out', 2)
+            time.sleep(1)
+            option = 5
+            break
 
     return option
 
@@ -302,17 +344,15 @@ def loc_loop():
                     lcd.lcd_display_string("Please pay fine", 1)
                     lcd.lcd_display_string("first", 2)
                     time.sleep(1)
-
+                    
                 inputKey = 0
-                session = 0
                 option = 0
                 returnIndex = []
 
             elif option == 2:
                 returnOption(person, id)
-
+                
                 inputKey = 0
-                session = 0
                 option = 0
                 returnIndex = []
 
@@ -324,14 +364,19 @@ def loc_loop():
                     lcd.lcd_display_string("Please pay fine", 1)
                     lcd.lcd_display_string("first", 2)
                     time.sleep(1)
-                
+                    
                 inputKey = 0
-                session = 0
                 option = 0
                 returnIndex = []
 
             elif option == 4:
                 fineOption(id)
+
+                inputKey = 0
+                option = 0
+                returnIndex = []
+                
+            elif option == 5:
                 
                 inputKey = 0
                 session = 0
@@ -353,10 +398,10 @@ def getList():
     checkChangeFine = {}
 
     while(True):
-        data = getBooklist.getReserve()
+        data = getBooklist.getReserve(BASE_URL)
         reserveList = data[0]
         borrowList = data[1]
-        fineData = getBooklist.getFine()
+        fineData = getBooklist.getFine(BASE_URL)
         userFine = fineData[0]
         fineList = fineData[1]
 
@@ -401,6 +446,13 @@ def fine():
     tempfinepaid = finePaid
     finePaid = ''
     return jsonify(tempfinepaid)
+
+@app.route('/cameraInstruct', methods=['GET'])
+def cam():
+    global instruct
+    tempInstruct = instruct
+    instruct = ''
+    return jsonify(tempInstruct)
 
 def run():
     app.run(host='0.0.0.0', port=5001)

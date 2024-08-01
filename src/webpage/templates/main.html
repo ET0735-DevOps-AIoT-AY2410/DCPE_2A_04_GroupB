@@ -8,22 +8,25 @@
 </head>
 <body>
     <header>
-        <h1>Reserve a Book</h1>
+        <h1>Online Library</h1>
     </header>
-    <div class="signOut">
-        <p>
+
+    <div class="navbar">
+        <div class="about">
+            <a href="{{ url_for('about') }}">About</a>
+        </div>
+        <div class="signOut">
             <div id="name"></div>
             <div id="identity"></div>
+            <div>
             <a href="{{ url_for('index') }}" onclick="logout()">Sign Out</a>
-        </p>
+            </div>
+        </div>
     </div>
     
     <div class="overlay" id="overlay"></div>
     <div class="overlay-box" id="overlay-box">
         <h2 id="chosenBook"></h2>
-        <p>
-            <a href="{{ url_for('about') }}">Link to About Page </a>
-        </p>
         
         <div id="name" visibility: hidden>
         </div>

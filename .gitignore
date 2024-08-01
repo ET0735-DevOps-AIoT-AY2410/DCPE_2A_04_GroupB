@@ -3,3 +3,4 @@ src/hal/__pycache__
 src/SPI-Py/__pycache__
 src/webpage/__pycache__
 src/test/__pycache__/
+test/__pycache__

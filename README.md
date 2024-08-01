@@ -7,6 +7,6 @@ It also contains the code for the Library Book Reservation and Collection System
 Before running app:
 - IP of server updated in:
     - static .js files
-    - getBooklist.py
+    - libInterface.py
 - IP of RPI updated in:
-    - getFromRpi.py
+    - webpage.py

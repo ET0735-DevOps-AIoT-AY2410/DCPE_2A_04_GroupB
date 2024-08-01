@@ -4,7 +4,7 @@ import time
 import readWriteBooks
 import removeReserved
 import calcFine
-import userPasswordFine
+import userInfo
 
 def getReserve(BASE_URL):
     try:
@@ -30,7 +30,7 @@ def getReserve(BASE_URL):
         url = f'{BASE_URL}/finepaid'
         response = requests.get(url)
         id = response.json()
-        userPasswordFine.addFine({id: 0})
+        userInfo.addFine({id: 0})
 
     except:
         pass
@@ -40,7 +40,7 @@ def getReserve(BASE_URL):
         removeReserved.checkReserveOver(data[0])
 
         fineList = calcFine.fining(data[1])
-        userPasswordFine.addFine(fineList)
+        userInfo.addFine(fineList)
 
 def main():
     while(True):
