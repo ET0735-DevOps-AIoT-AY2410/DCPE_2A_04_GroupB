@@ -1,3 +1,6 @@
+import sys
+sys.path.insert(0, './src/webpage')
+print(sys.path)
 import removeBorrowed 
 
 def notime(booklist):
