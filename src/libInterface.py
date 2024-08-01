@@ -4,6 +4,7 @@ from hal import hal_dc_motor as dc_motor
 from threading import Thread
 from flask import Flask, jsonify
 import time
+import datetime
 import logging
 
 import lib_loc
@@ -20,7 +21,7 @@ lcd = LCD.lcd()
 lcd.lcd_clear()
 dc_motor.init()
 
-BASE_URL = 'http://192.168.50.191:5000'
+BASE_URL = 'http://172.23.17.77:5000'
 
 returnIndex = []
 instruct = ''
@@ -114,6 +115,8 @@ def pageOptions():
     global inputKey
     option = 0
     inputKey = 0
+    
+    sessionTime = datetime.now()
 
     while(option < 1 or option > 5):
         time.sleep(1)
@@ -140,6 +143,17 @@ def pageOptions():
         time.sleep(1)
 
         option = inputKey
+
+        currentTime = datetime.now()
+        delta = currentTime - sessionTime
+        min = round(delta.total_seconds())/60
+        if min == 1:
+            lcd.lcd_clear()
+            lcd.lcd_display_string('Session timed', 1)
+            lcd.lcd_display_string('out', 2)
+            time.sleep(1)
+            option = 5
+            break
 
     return option
 
@@ -330,9 +344,17 @@ def loc_loop():
                     lcd.lcd_display_string("Please pay fine", 1)
                     lcd.lcd_display_string("first", 2)
                     time.sleep(1)
+                    
+                inputKey = 0
+                option = 0
+                returnIndex = []
 
             elif option == 2:
                 returnOption(person, id)
+                
+                inputKey = 0
+                option = 0
+                returnIndex = []
 
             elif option == 3:
                 if id not in userFine:
@@ -342,9 +364,17 @@ def loc_loop():
                     lcd.lcd_display_string("Please pay fine", 1)
                     lcd.lcd_display_string("first", 2)
                     time.sleep(1)
+                    
+                inputKey = 0
+                option = 0
+                returnIndex = []
 
             elif option == 4:
                 fineOption(id)
+
+                inputKey = 0
+                option = 0
+                returnIndex = []
                 
             elif option == 5:
                 
