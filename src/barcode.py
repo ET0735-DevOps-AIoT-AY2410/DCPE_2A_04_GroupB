@@ -1,9 +1,10 @@
 from time import sleep
-from PIL import Image
+from PIL import Image, ImageFile
 from pyzbar.pyzbar import decode
 import os
 
 def read_barcode(file_path):
+    ImageFile.LOAD_TRUNCATED_IMAGES = True
     image = Image.open(file_path)
     barcodes = decode(image)
     if len(barcodes) == 0:

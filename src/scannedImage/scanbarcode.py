@@ -12,11 +12,19 @@ def capture_image(file_path):
     camera.stop_preview()
     camera.close()
 
+def getInstruct():
+    try:
+        reponse = requests.get('http://127.0.0.1:5001/cameraInstruct').json()
+        return reponse
+    except:
+        pass
+
 def main():
     while(True):
-        response = requests.get('http://127.0.0.1:5001/cameraInstruct')
-        if response == 'scannedImage/barcode.jpg':
-            capture_image('barcode.jpg')
+        response = getInstruct()
+        if response == 'scan':
+            capture_image('scannedImage/barcode.jpg')
+            print('scanned successfully')
 
 if __name__ == "__main__":
     main()
