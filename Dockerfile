@@ -25,6 +25,6 @@ RUN python3 setup.py install
 
 WORKDIR /app
 
-CMD ["python", "src/libInterface.py"]
+CMD ["python", "-u", "src/libInterface.py"]
 
 #docker run --privileged=true -p 5001:5001 --mount type=bind,source="$(pwd)"/src/scannedImage,target=/app/scannedImage testlib
