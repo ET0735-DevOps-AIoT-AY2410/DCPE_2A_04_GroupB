@@ -19,8 +19,15 @@ import barcode
 lcd = LCD.lcd()
 lcd.lcd_clear()
 dc_motor.init()
+
+BASE_URL = 'http://192.168.50.191:5000'
+
 returnIndex = []
 instruct = ''
+fineList = []
+borrowList = {}
+reserveList = {}
+userFine = {}
 
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
@@ -361,10 +368,10 @@ def getList():
     checkChangeFine = {}
 
     while(True):
-        data = getBooklist.getReserve()
+        data = getBooklist.getReserve(BASE_URL)
         reserveList = data[0]
         borrowList = data[1]
-        fineData = getBooklist.getFine()
+        fineData = getBooklist.getFine(BASE_URL)
         userFine = fineData[0]
         fineList = fineData[1]
 
