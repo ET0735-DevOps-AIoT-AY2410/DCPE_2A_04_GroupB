@@ -1,6 +1,3 @@
-import sys
-sys.path.insert(0, './src/webpage')
-print(sys.path)
 from parseDateTime import getYear, getMonth, getDay, getHour, getMin, getSec
 
 testDateTime = '2024-06-09 02:18:29'

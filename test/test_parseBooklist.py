@@ -1,6 +1,3 @@
-import sys
-sys.path.insert(0, './src/webpage')
-print(sys.path)
 from parseBooklist import getNameList, findPerson, getReserve
 
 egBooklist = {'Test1&1234567': [['Book 1', 'Location 2', '2024-06-09 15:07:23'], 

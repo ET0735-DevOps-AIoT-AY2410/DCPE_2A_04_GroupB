@@ -1,5 +1,5 @@
 import sys
-sys.path.insert(0, './src/webpage')
+sys.path.insert(0, './src')
 print(sys.path)
 from datetime import datetime, timedelta
 from calcFine import check_overdue_books, fining
