@@ -64,6 +64,16 @@ def signup():
     passwords[identity] = password
     return jsonify({'success': True, 'message': 'Account created successfully'})
 
+@app.route('/cancel_reserve', methods=['POST'])
+def cancel_reserve():
+    data = request.get_json()
+    info = data.get('info')
+    bookId = data.get('bookId')
+    readWriteBooks.removeBook(info, str(bookId))
+    print(info, bookId)
+
+    return jsonify({'success': True, 'message': 'Reservation cancelled successfully'})
+
 @app.route('/reserve', methods=['POST'])
 def reserve():
     if 'identity' not in session:
