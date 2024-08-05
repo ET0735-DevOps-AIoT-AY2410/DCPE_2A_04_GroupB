@@ -8,5 +8,11 @@ Before running app:
 - IP of server updated in:
     - static .js files
     - libInterface.py
-- IP of RPI updated in:
+- IP of RPi updated in:
     - webpage.py
+
+To run:
+- Update IP addresses
+- Run webpage.py on server
+- Run scanbarcode.py on RPi
+- Run container on RPi (dionchoy/testlib)
