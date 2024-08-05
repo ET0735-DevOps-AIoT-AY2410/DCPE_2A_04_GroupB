@@ -19,7 +19,9 @@ def key_pressed(key):
     returnIndex.append(password)
 
 def extend(returnIndex, borrowList, person):
-    returnIndex.remove('*')
+    for i in returnIndex:
+        if type(i) != int:
+            returnIndex.remove('*')
     info = person[0] + '&' + person[1]
     borrowList[info]
     
@@ -39,7 +41,7 @@ def display(borrowList, person, dictionary):
     for i in range(len(displayList)):
         if displayList[i][1][-1:] != 'E':
             lcd.lcd_clear()
-            lcd.lcd_display_string(dictionary[displayList[i][0]] + ' press ' + str(i+1), 1)
+            lcd.lcd_display_string(f"[{i+1}]{dictionary[displayList[i][0]]}", 1)
             lcd.lcd_display_string(f"return by {int(getMin(displayList[i][1])) + 7}", 2)
             time.sleep(0.5)
         elif displayList[i][1][-1:] == 'E':

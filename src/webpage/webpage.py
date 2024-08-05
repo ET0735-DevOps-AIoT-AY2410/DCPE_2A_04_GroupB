@@ -15,7 +15,7 @@ log.setLevel(logging.ERROR)
 
 app.secret_key = 'super_secret_key'
 
-BASE_URL = 'http://192.168.50.170:5001'
+BASE_URL = 'http://172.23.67.92:5001'
 
 passwords = userInfo.load_passwords()
 
@@ -121,9 +121,9 @@ def create_account():
 def main():
     return render_template('main.html')
 
-@app.route('/about')
-def about():
-    return render_template('about.html')
+@app.route('/reserved')
+def reserved():
+    return render_template('reserved.html')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)

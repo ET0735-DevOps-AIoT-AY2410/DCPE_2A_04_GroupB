@@ -66,8 +66,28 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             document.getElementById('name').innerHTML = data.name;
             document.getElementById('identity').innerHTML = data.identity;
+            info = data.name + "&" + data.identity;
         }
     })
+    
+    fetch(`${ip}/reservations`)
+        .then(response => response.json())
+        .then(data => {
+            var reserveBorrowList = [];
+            for (let j = 0; j < 2; j++){
+                if (data[j][info] && data[j][info].length > 0) {
+                    const list = data[j][info];
+                    for (let i = 0; i < list.length; i++) {
+                        bookId = list[i][0];
+
+                        reserveBorrowList.push(bookId);
+                    }
+                }
+            }
+
+            console.log(reserveBorrowList)
+        })
+        .catch(error => console.error(`Error fetching ${endpoint} books:`, error));
 
 
     const bookContainer = document.getElementById('books');
