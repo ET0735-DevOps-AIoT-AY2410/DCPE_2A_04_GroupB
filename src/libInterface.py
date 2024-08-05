@@ -58,6 +58,7 @@ def key_pressed(key):       #check keypad
 
 def setup(location):        #check location
     output = "Location " + str(location)
+    lcd.lcd_clear()
     lcd.lcd_display_string(output, 1)
     lcd.lcd_display_string("Press '*'", 2)
 
@@ -108,10 +109,10 @@ def auth():                 #scan id and authenticate
             accountExist = parseBooklist.findPerson(userList, adminNo)
             if accountExist[0] == True:
                 lcd.lcd_display_string("No services", 1)
-                lcd.lcd_display_string("Available", 2)
+                lcd.lcd_display_string("available", 2)
                 time.sleep(1)
                 lcd.lcd_display_string("Reserve book", 1)
-                lcd.lcd_display_string("first", 2)
+                lcd.lcd_display_string("first    ", 2)
                 time.sleep(1)
                 return [False]
                 
