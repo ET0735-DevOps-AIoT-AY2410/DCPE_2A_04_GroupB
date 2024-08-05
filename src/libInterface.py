@@ -4,7 +4,7 @@ from hal import hal_dc_motor as dc_motor
 from threading import Thread
 from flask import Flask, jsonify
 import time
-import datetime
+from datetime import datetime
 import logging
 
 import lib_loc
@@ -138,8 +138,8 @@ def pageOptions():
         time.sleep(1)
 
         lcd.lcd_clear()
-        lcd.lcd_display_string('Collect press 1', 1)
-        lcd.lcd_display_string('Return press 2', 2)
+        lcd.lcd_display_string('[1]Collect', 1)
+        lcd.lcd_display_string('[2]Return', 2)
 
         time.sleep(1)
         option = inputKey
@@ -147,15 +147,15 @@ def pageOptions():
             break
 
         lcd.lcd_clear()
-        lcd.lcd_display_string('Extend press 3', 1)
-        lcd.lcd_display_string('Pay fine press 4', 2)
+        lcd.lcd_display_string('[3]Extend', 1)
+        lcd.lcd_display_string('[4]Pay fine', 2)
         time.sleep(1)
         option = inputKey
         if (option >= 1 and option <= 5):
             break
 
         lcd.lcd_clear()
-        lcd.lcd_display_string('Exit press 5', 1)
+        lcd.lcd_display_string('[5]Exit', 1)
         time.sleep(1)
 
         option = inputKey
@@ -163,7 +163,7 @@ def pageOptions():
         currentTime = datetime.now()
         delta = currentTime - sessionTime
         min = round(delta.total_seconds())/60
-        if min == 1:
+        if min >= 1:
             lcd.lcd_clear()
             lcd.lcd_display_string('Session timed', 1)
             lcd.lcd_display_string('out', 2)
@@ -218,10 +218,15 @@ def returnOption(person, id):
             time.sleep(0.5)
         toReturnList = returnBook.returnBook(returnIndex, borrowList, person)
         borrowList = removeBorrowed.remove(borrowList, toReturnList)
-
-        lcd.lcd_display_string("Books returned", 1)
-        lcd.lcd_display_string('successfully', 2)
-        time.sleep(0.5)
+        
+        if len(returnIndex) > 1:
+            lcd.lcd_clear()
+            lcd.lcd_display_string("Books returned", 1)
+            lcd.lcd_display_string('successfully', 2)
+            time.sleep(0.5)
+        else:
+            lcd.lcd_clear()
+            lcd.lcd_display_string("Exited", 1)
 
         print('returned', toReturnList)
         print('borrowed', borrowList)
@@ -250,9 +255,14 @@ def extendOption(person, id):
         borrowList = extendTime.extend(returnIndex, borrowList, person)
         toReturnList = borrowList
 
-        lcd.lcd_display_string("Books extended", 1)
-        lcd.lcd_display_string('successfully', 2)
-        time.sleep(0.5)
+        if len(returnIndex) > 1:
+            lcd.lcd_clear()
+            lcd.lcd_display_string("Books returned", 1)
+            lcd.lcd_display_string('successfully', 2)
+            time.sleep(0.5)
+        else:
+            lcd.lcd_clear()
+            lcd.lcd_display_string("Exited", 1)
 
         print('borrowed', borrowList)
     
