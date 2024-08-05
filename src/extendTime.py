@@ -5,6 +5,7 @@ from hal import hal_lcd as LCD
 from hal import hal_keypad as keypad
 from parseDateTime import getMin
 import parseBooklist
+import libInterface
 
 #Use 1min instead of 1day for demonstration purposes
 
@@ -49,6 +50,9 @@ def display(borrowList, person, dictionary):
             lcd.lcd_display_string(dictionary[displayList[i][0]], 1)
             lcd.lcd_display_string("already extended", 2)
             time.sleep(0.5)
+
+        if libInterface.inputKey == "*":
+                return
     
     return
 

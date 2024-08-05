@@ -19,9 +19,8 @@ import barcode
 
 lcd = LCD.lcd()
 lcd.lcd_clear()
-dc_motor.init()
 
-BASE_URL = 'http://172.23.17.77:5000'
+BASE_URL = 'http://192.168.50.191:5000'
 
 returnIndex = []
 instruct = ''
@@ -30,6 +29,7 @@ borrowList = {}
 reserveList = {}
 userFine = {}
 userList = []
+inputKey = 0
 
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
@@ -189,9 +189,11 @@ def collectOption(person, id, userLoc):
         toReturnList = collection.collectBook(person, userLoc, reserveList, noOfBorrowed)
         reserveList = removeBorrowed.remove(reserveList, toReturnList)
 
-        lcd.lcd_display_string("Books collected", 1)
-        lcd.lcd_display_string('successfully', 2)
-        time.sleep(0.5)
+        if len(toReturnList) > 0:
+            lcd.lcd_clear()
+            lcd.lcd_display_string("Books collected", 1)
+            lcd.lcd_display_string('successfully', 2)
+            time.sleep(0.5)
 
         print('borrowed', toReturnList)
     
@@ -451,6 +453,7 @@ def getList():
             checkChangeUserList = userList
 
 def main():
+    dc_motor.init()
     keypad.init(key_pressed)
 
     keypad_thread = Thread(target=keypad.get_key)

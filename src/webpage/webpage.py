@@ -15,7 +15,7 @@ log.setLevel(logging.ERROR)
 
 app.secret_key = 'super_secret_key'
 
-BASE_URL = 'http://172.23.67.92:5001'
+BASE_URL = 'http://192.168.50.170:5001'
 
 passwords = userInfo.load_passwords()
 

@@ -4,6 +4,8 @@ from threading import Thread
 import time
 import parseBooklist
 
+import libInterface
+
 lcd = LCD.lcd()
 lcd.lcd_clear()
 returnIndex = []
@@ -25,6 +27,9 @@ def displayBorrowed(borrowList, person, dictionary):
                 lcd.lcd_display_string(f"[{i}]{dictionary[displayList[i-1][0]]}", 1)
                 lcd.lcd_display_string(f"[{i+1}]{dictionary[displayList[i][0]]}", 2)
                 time.sleep(0.5)
+            
+            if libInterface.inputKey == "*":
+                return
 
     elif len(displayList)%2 == 1:
         for i in range(len(displayList)):
@@ -37,6 +42,9 @@ def displayBorrowed(borrowList, person, dictionary):
                 lcd.lcd_clear()
                 lcd.lcd_display_string(f"[{i+1}]{dictionary[displayList[i][0]]}", 1)
                 time.sleep(0.5)
+            
+            if libInterface.inputKey == "*":
+                return
 
 
 def returnBook(returnIndex, borrowList, person):
