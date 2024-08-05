@@ -36,6 +36,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     })
     .catch(error => console.error('Error fetching session data:', error));
+
+    
+    fetch(`${ip}/fines`, {
+        method: 'GET',
+    })
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById('fine').innerHTML = Math.round(data[0][info] * 100) / 100
+    })
+    .catch(error => console.error('Error fetching session data:', error));
 });
 
 function fetchBooks(info, selector, tableBodySelector) {
