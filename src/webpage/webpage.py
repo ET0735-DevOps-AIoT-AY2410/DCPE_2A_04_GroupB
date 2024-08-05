@@ -94,6 +94,14 @@ def get_reservations():
     booklist = readWriteBooks.loadBooks()
     return jsonify(booklist)
 
+@app.route('/users', methods=['GET'])
+def getUsers():
+    userList = []
+    for i in (userInfo.load_passwords().keys()):
+        userList.append(i)
+
+    return jsonify(userList)
+
 @app.route('/fines', methods=['GET'])
 def get_fines():
     getReserve(BASE_URL)

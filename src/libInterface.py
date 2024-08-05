@@ -29,6 +29,7 @@ fineList = []
 borrowList = {}
 reserveList = {}
 userFine = {}
+userList = []
 
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
@@ -57,6 +58,7 @@ def key_pressed(key):       #check keypad
 
 def setup(location):        #check location
     output = "Location " + str(location)
+    lcd.lcd_clear()
     lcd.lcd_display_string(output, 1)
     lcd.lcd_display_string("Press '*'", 2)
 
@@ -100,16 +102,31 @@ def auth():                 #scan id and authenticate
 
         elif verified == False:
             lcd.lcd_clear()
-            output = 'to try again ('+ str(attmps) + ')'
-            lcd.lcd_display_string("Please press '#'", 1)
-            lcd.lcd_display_string(output, 2)
-            attmps += 1
-            while(inputKey != '#'): 
+
+            for i in userList:
+                i = i.split('&')
+
+            accountExist = parseBooklist.findPerson(userList, adminNo)
+            if accountExist[0] == True:
+                lcd.lcd_display_string("No services", 1)
+                lcd.lcd_display_string("available", 2)
                 time.sleep(1)
-   
-            if attmps == 10:
-                lcd.lcd_clear()
+                lcd.lcd_display_string("Reserve book", 1)
+                lcd.lcd_display_string("first    ", 2)
+                time.sleep(1)
                 return [False]
+                
+            elif accountExist[0] == False:
+                output = 'to try again ('+ str(attmps) + ')'
+                lcd.lcd_display_string("Please press '#'", 1)
+                lcd.lcd_display_string(output, 2)
+                attmps += 1
+                while(inputKey != '#'): 
+                    time.sleep(1)
+    
+                if attmps == 10:
+                    lcd.lcd_clear()
+                    return [False]
 
 def pageOptions():
     global inputKey
@@ -391,10 +408,12 @@ def getList():
     global borrowList
     global fineList
     global userFine
+    global userList
 
     checkChangeReserve = {}
     checkChangeBorrow = {}
     checkChangeUserFine = {}
+    checkChangeUserList = []
     checkChangeFine = {}
 
     while(True):
@@ -404,6 +423,7 @@ def getList():
         fineData = getBooklist.getFine(BASE_URL)
         userFine = fineData[0]
         fineList = fineData[1]
+        userList = getBooklist.getUsers(BASE_URL)
 
         if reserveList != checkChangeReserve:
             print('reserve: ', reserveList)
@@ -417,6 +437,9 @@ def getList():
         if fineList != checkChangeFine:
             print('fines: ', fineList)
             checkChangeFine = fineList
+        if userList != checkChangeUserList:
+            print('user accounts: ', userList)
+            checkChangeUserList = userList
 
 def main():
     keypad.init(key_pressed)
