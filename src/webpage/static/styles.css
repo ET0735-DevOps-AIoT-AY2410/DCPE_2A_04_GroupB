@@ -249,3 +249,18 @@ main {
     background-color: #218838;
 }
 
+/* Cancel Reservation Button */
+.cancel button {
+    padding: 4px 9px;
+    background-color: #ff4d4d;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    font-size: 11px;
+}
+
+.cancel button:hover {
+    background-color: #ff1a1a;
+}

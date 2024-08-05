@@ -43,7 +43,12 @@ document.addEventListener('DOMContentLoaded', () => {
     })
     .then(response => response.json())
     .then(data => {
-        document.getElementById('fine').innerHTML = Math.round(data[0][info] * 100) / 100
+        if (data[0][info]){
+            console.log(data[0][info])
+            document.getElementById('fine').innerHTML = Math.round(data[0][info] * 100) / 100
+        } else {
+            document.getElementById('fine').innerHTML = 0
+        }
     })
     .catch(error => console.error('Error fetching session data:', error));
 });
@@ -59,13 +64,18 @@ function fetchBooks(info, selector, tableBodySelector) {
                 if (data[0][info] && data[0][info].length > 0) {
                     const list = data[0][info];
                     for (let i = 0; i < list.length; i++) {
-                        const book = books[parseInt(list[i][0]) - 1];
                         const row = document.createElement('tr');
+                        const book = books[parseInt(list[i][0]) - 1];
                         const reservationTime = new Date(list[i][2]);
                         reservationTime.setMinutes(reservationTime.getMinutes() + 5);
 
                         row.innerHTML = `
-                            <td>${book.bookTitle}</td>
+                            <td>
+                            ${book.bookTitle}<br>
+                            <div class="cancel">
+                            <button onclick="cancelReservation(${list[i][0]})">Cancel reservation</button>
+                            <div>
+                            </td>
                             <td><img src="${book.image}" width="100"></td>
                             <td>${list[i][1]}</td>
                             <td>${reservationTime.toLocaleString()}</td>
@@ -94,12 +104,32 @@ function fetchBooks(info, selector, tableBodySelector) {
                     }
                 } else {
                     const row = document.createElement('tr');
-                    row.innerHTML = '<td colspan="4">No books currently reserved.</td>';
+                    row.innerHTML = '<td colspan="3">No books currently reserved.</td>';
                     tableBody.appendChild(row);
                 }
             }
         })
-        .catch(error => console.error(`Error fetching ${endpoint} books:`, error));
+        .catch(error => console.error(`Error fetching ${selector} books:`, error));
+}
+
+function cancelReservation(bookId) {
+    fetch(`${ip}/cancel_reserve`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ info: info, bookId: bookId })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Reservation cancelled successfully');
+            location.reload(); // Reload the page to update the table
+        } else {
+            alert('Failed to cancel reservation');
+        }
+    })
+    .catch(error => console.error('Error cancelling reservation:', error));
 }
 
 function openTab(evt, tabName) {

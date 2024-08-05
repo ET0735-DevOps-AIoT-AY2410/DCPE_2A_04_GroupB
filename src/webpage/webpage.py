@@ -15,7 +15,7 @@ log.setLevel(logging.ERROR)
 
 app.secret_key = 'super_secret_key'
 
-BASE_URL = 'http://172.23.67.92:5001'
+BASE_URL = 'http://192.168.50.170:5001'
 
 passwords = userInfo.load_passwords()
 
@@ -63,6 +63,16 @@ def signup():
     passwords = userInfo.load_passwords()
     passwords[identity] = password
     return jsonify({'success': True, 'message': 'Account created successfully'})
+
+@app.route('/cancel_reserve', methods=['POST'])
+def cancel_reserve():
+    data = request.get_json()
+    info = data.get('info')
+    bookId = data.get('bookId')
+    readWriteBooks.removeBook(info, str(bookId))
+    print(info, bookId)
+
+    return jsonify({'success': True, 'message': 'Reservation cancelled successfully'})
 
 @app.route('/reserve', methods=['POST'])
 def reserve():
