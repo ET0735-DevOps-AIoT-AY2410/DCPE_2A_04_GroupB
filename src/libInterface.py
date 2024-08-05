@@ -120,10 +120,10 @@ def auth():                 #scan id and authenticate
                 lcd.lcd_display_string("Please press '#'", 1)
                 lcd.lcd_display_string(output, 2)
                 attmps += 1
-                while(inputKey != '#'): 
+                while(inputKey != '#' and inputKey != '*'): 
                     time.sleep(1)
     
-                if attmps == 10:
+                if attmps == 10 or inputKey == '*':
                     lcd.lcd_clear()
                     return [False]
 
