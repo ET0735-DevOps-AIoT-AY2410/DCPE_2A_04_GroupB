@@ -57,8 +57,7 @@ def key_pressed(key):       #check keypad
     print(returnIndex)
 
 def setup(location):        #check location
-    output = "Location " + str(location)
-    lcd.lcd_clear()
+    output = "Location " + str(location) + "     "
     lcd.lcd_display_string(output, 1)
     lcd.lcd_display_string("Press '*'", 2)
 
