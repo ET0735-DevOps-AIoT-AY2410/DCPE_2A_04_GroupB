@@ -14,6 +14,7 @@ const books = [
     { id: 10, bookTitle: 'Book 10', image: 'https://m.media-amazon.com/images/I/61KPPB-34FL._AC_UF1000,1000_QL80_.jpg' },
 ];
 
+const reserveBorrowList = [];
 
 //Turn on/off overlay
 function on() {
@@ -22,7 +23,7 @@ function on() {
     document.getElementById("overlay-box").style.display = "block";
 }
 
-function off() {
+function off(event) {
     
     if (document.getElementById('location').value !== "") {
         if (confirm("Are you sure you want to stop reservation?")) {
@@ -42,13 +43,46 @@ function off() {
     }
 }
 
-function checkLocation() {
+document.onkeydown = function(evt) {
+    evt = evt || window.event;
+    var isEscape = false;
+    if ("key" in evt) {
+        isEscape = (evt.key === "Escape" || evt.key === "Esc");
+    } else {
+        isEscape = (evt.keyCode === 27);
+    }
+    if (isEscape && document.getElementById("overlay").style.display == "block") {
+        document.getElementById("overlay").style.display = "none";
+        document.getElementById("overlay-box").style.display = "none";
+        document.getElementById('confirmationMessage').style.display = 'none';
+    }
+};
+
+function checkLocation(event) {
     if (document.getElementById('location').value === "") {
         alert("Please fill out all a location.");
         event.preventDefault();
         return;
     }
 }
+
+function loadBorrowedReserved(info) {
+    fetch(`${ip}/reservations`)
+        .then(response => response.json())
+        .then(data => {
+            for (let i = 0; i < 2; i++){
+                if (data[i][info] && data[i][info].length > 0) {
+                    const list = data[i][info];
+                    for (let j = 0; j < list.length; j++) {
+                        bookId = list[j][0];
+
+                        reserveBorrowList.push(bookId);
+                    }
+                }
+            }
+        })
+        .catch(error => console.error(`Error fetching books:`, error));
+    }
 
 //Load books
 document.addEventListener('DOMContentLoaded', () => {
@@ -67,28 +101,9 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('name').innerHTML = data.name;
             document.getElementById('identity').innerHTML = data.identity;
             info = data.name + "&" + data.identity;
+            loadBorrowedReserved (info)
         }
     })
-    
-    fetch(`${ip}/reservations`)
-        .then(response => response.json())
-        .then(data => {
-            var reserveBorrowList = [];
-            for (let j = 0; j < 2; j++){
-                if (data[j][info] && data[j][info].length > 0) {
-                    const list = data[j][info];
-                    for (let i = 0; i < list.length; i++) {
-                        bookId = list[i][0];
-
-                        reserveBorrowList.push(bookId);
-                    }
-                }
-            }
-
-            console.log(reserveBorrowList)
-        })
-        .catch(error => console.error(`Error fetching ${endpoint} books:`, error));
-
 
     const bookContainer = document.getElementById('books');
 
@@ -123,34 +138,43 @@ function reserveBook(bookId) {
 document.getElementById('reservationForm').addEventListener('submit', function(event) {
     event.preventDefault();
 
-    
-    const formData = {
-        name: document.getElementById('name').innerHTML,
-        bookID: document.getElementById('id').value,
-        identity: document.getElementById('identity').innerHTML,
-        bookTitle: document.getElementById('reservedBook').value,
-        location: document.getElementById('location').value,
-        reserveTime: new Date().toISOString()
-    };
+    if (reserveBorrowList.includes(document.getElementById('id').value.toString())){
+        alert("Book reserved/borrowed already")
+        document.getElementById("overlay").style.display = "none";
+        document.getElementById("overlay-box").style.display = "none";
+        document.getElementById('confirmationMessage').style.display = 'none';
 
-    //Public IP below
-    fetch(`${ip}/reserve`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(formData)
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            document.getElementById('confirmationMessage').style.display = 'block';
-            document.getElementById('reservationForm').reset();
-        } else {
-            alert('There was a problem with your reservation. Please try again.');
-        }
-    })
-    .catch(error => console.error('Error:', error));
+    } else {
+        const formData = {
+            name: document.getElementById('name').innerHTML,
+            bookID: document.getElementById('id').value,
+            identity: document.getElementById('identity').innerHTML,
+            bookTitle: document.getElementById('reservedBook').value,
+            location: document.getElementById('location').value,
+            reserveTime: new Date().toISOString()
+        };
+
+        reserveBorrowList.push(document.getElementById('id').value)
+
+        //Public IP below
+        fetch(`${ip}/reserve`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('confirmationMessage').style.display = 'block';
+                document.getElementById('reservationForm').reset();
+            } else {
+                alert('There was a problem with your reservation. Please try again.');
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }  
 });
 
 function logout() {

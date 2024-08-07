@@ -11,8 +11,10 @@ Before running app:
 - IP of RPi updated in:
     - webpage.py
 
-To run:
-- Update IP addresses
-- Run webpage.py on server
-- Run scanbarcode.py on RPi
-- Run container on RPi (dionchoy/testlib)
+To run container:
+```
+docker run -it --privileged=true \
+-p 5001:5001 \
+--mount type=bind,source="$(sudo find /home/pi -name scannedImage)",target=/app/scannedImage \
+dionchoy/testlib
+```
