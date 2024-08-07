@@ -10,3 +10,11 @@ Before running app:
     - getBooklist.py
 - IP of RPI updated in:
     - getFromRpi.py
+
+To run container:
+```
+docker run -it --privileged=true \
+-p 5001:5001 \
+--mount type=bind,source="$(sudo find /home/pi -name scannedImage)",target=/app/scannedImage \
+dionchoy/testlib
+```
