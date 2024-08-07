@@ -23,16 +23,15 @@ def dispenseBook():
     servo.set_servo_position(90)
     time.sleep(0.5)            
     dc_motor.set_motor_speed(100)
-    time.sleep(5)   
+    time.sleep(3)   
     dc_motor.set_motor_speed(0)
     time.sleep(0.5) 
 
     
     print("closed")
     servo.set_servo_position(0)
-    time.sleep(1)
-    
     led.set_output(1, 0)
+    time.sleep(1)
 
 def main():
     dc_motor.init()

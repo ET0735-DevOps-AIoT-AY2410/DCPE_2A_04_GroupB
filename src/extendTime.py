@@ -22,12 +22,13 @@ def key_pressed(key):
 def extend(returnIndex, borrowList, person):
     for i in returnIndex:
         if type(i) != int:
-            returnIndex.remove('*')
+            returnIndex.remove(i)
+    returnIndex = set(returnIndex)
     info = person[0] + '&' + person[1]
     borrowList[info]
     
     for index in returnIndex:
-        if index <= len(borrowList[info]) and index > 0:
+        if index <= len(borrowList[info]) and index > -1:
             borrowDate = datetime.strptime(borrowList[info][int(index)-1][1], '%Y-%m-%d %H:%M:%S')
             newDate = borrowDate + timedelta(minutes=7)
             newDate = datetime.strftime(newDate, '%Y-%m-%d %H:%M:%S')
@@ -42,7 +43,7 @@ def display(borrowList, person, dictionary):
     for i in range(len(displayList)):
         if displayList[i][1][-1:] != 'E':
             lcd.lcd_clear()
-            lcd.lcd_display_string(f"[{i+1}]{dictionary[displayList[i][0]]}", 1)
+            lcd.lcd_display_string(f"[{(i+1)%10}]{dictionary[displayList[i][0]]}", 1)
             lcd.lcd_display_string(f"return by {int(getMin(displayList[i][1])) + 7}", 2)
             time.sleep(0.5)
         elif displayList[i][1][-1:] == 'E':
@@ -51,10 +52,14 @@ def display(borrowList, person, dictionary):
             lcd.lcd_display_string("already extended", 2)
             time.sleep(0.5)
 
-        if libInterface.inputKey == "*":
-                return
+        print(libInterface.exportKey)
+        if libInterface.exportKey == "*":
+            return
     
-    return
+    lcd.lcd_clear()
+    lcd.lcd_display_string("Press '*' to", 1)
+    lcd.lcd_display_string('continue', 2)
+    time.sleep(0.5)
 
 def main():
     global password
