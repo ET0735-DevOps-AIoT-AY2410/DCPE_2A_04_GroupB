@@ -231,8 +231,9 @@ main {
 
 .book img {
     max-width: 100%;
-    height: auto;
+    aspect-ratio: 440/650;
     border-radius: 8px;
+    object-fit: cover;
 }
 
 .book button {
@@ -263,4 +264,30 @@ main {
 
 .cancel button:hover {
     background-color: #ff1a1a;
+}
+
+.extend button {
+    padding: 5px 10px;
+    background-color: #4da3ff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    font-size: 13px;
+}
+
+.extend button:hover {
+    background-color: #4693e6;
+}
+
+.extended button {
+    padding: 5px 10px;
+    background-color: #5f6b79;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    font-size: 13px;
 }

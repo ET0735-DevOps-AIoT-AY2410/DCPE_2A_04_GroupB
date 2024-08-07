@@ -1,24 +1,23 @@
-const ip = 'http://127.0.0.1:5000';
-
-// Books list
-const books = [
-    { id: 1, bookTitle: 'Book 1', image: 'https://m.media-amazon.com/images/I/81DFDGzHZqL._AC_UF1000,1000_QL80_.jpg' },
-    { id: 2, bookTitle: 'Book 2', image: 'https://m.media-amazon.com/images/I/51gLEj8UHzL._AC_UF1000,1000_QL80_.jpg' },
-    { id: 3, bookTitle: 'Book 3', image: 'https://m.media-amazon.com/images/I/91Yob+SFXdL._AC_UF1000,1000_QL80_.jpg' },
-    { id: 4, bookTitle: 'Book 4', image: 'https://m.media-amazon.com/images/I/61lBRY5h+NL._AC_UF1000,1000_QL80_.jpg' },
-    { id: 5, bookTitle: 'Book 5', image: 'https://m.media-amazon.com/images/I/915SPe6hrfL._SY342_.jpg' },
-    { id: 6, bookTitle: 'Book 6', image: 'https://m.media-amazon.com/images/I/91NPng6lBsL._AC_UF1000,1000_QL80_.jpg' },
-    { id: 7, bookTitle: 'Book 7', image: 'https://www.hoddereducation.sg/productCovers/9789810631307.jpg' },
-    { id: 8, bookTitle: 'Book 8', image: 'https://www.hoddereducation.sg/productCovers/9789810631154.jpg' },
-    { id: 9, bookTitle: 'Book 9', image: 'https://m.media-amazon.com/images/I/612ADI+BVlL._AC_UF1000,1000_QL80_.jpg' },
-    { id: 10, bookTitle: 'Book 10', image: 'https://m.media-amazon.com/images/I/61KPPB-34FL._AC_UF1000,1000_QL80_.jpg' },
-];
+const ip = 'http://127.0.0.1:5000'
 
 const overdue = [];
 
 let info = '';
+let state = {};
+
+window.onload = function () {
+    var url = document.location.href
+    params = url.split('?')[1]
+    
+    if (params == "borrowed"){
+        document.getElementsByClassName('tablinks')[1].click();
+    } else {
+        document.getElementsByClassName('tablinks')[0].click();
+    }
+}
 
 document.addEventListener('DOMContentLoaded', () => {
+
     fetch(`${ip}/session`, {
         method: 'GET',
         credentials: 'include'
@@ -26,12 +25,14 @@ document.addEventListener('DOMContentLoaded', () => {
     .then(response => response.json())
     .then(data => {
         console.log('Session data:', data);
+
         if (!data.loggedIn) {
             window.location.href = '/';
         } else {
             document.getElementById('name').innerHTML = data.name;
             document.getElementById('identity').innerHTML = data.identity;
             info = data.name + "&" + data.identity;
+            state = data
         }
     })
     .catch(error => console.error('Error fetching session data:', error));
@@ -58,7 +59,19 @@ document.addEventListener('DOMContentLoaded', () => {
         fetchBooks(info, 1, '#borrowed-books-table tbody');
     })
     .catch(error => console.error('Error fetching session data:', error));
+
+    fetch(`${ip}/books`, {
+        method: 'GET',
+    })
+    .then(response => response.json())
+    .then(data => {
+        books = data
+    });
 });
+
+function preventExtend(){
+    alert("This book has been previously extended")
+}
 
 function fetchBooks(info, selector, tableBodySelector) {
     fetch(`${ip}/reservations`)
@@ -73,7 +86,7 @@ function fetchBooks(info, selector, tableBodySelector) {
                     for (let i = 0; i < list.length; i++) {
                         const row = document.createElement('tr');
                         const book = books[parseInt(list[i][0]) - 1];
-                        const reservationTime = new Date(list[i][2]);
+                        const reservationTime = new Date(list[i][2].slice(0, 19));
                         reservationTime.setMinutes(reservationTime.getMinutes() + 5);
 
                         row.innerHTML = `
@@ -100,13 +113,31 @@ function fetchBooks(info, selector, tableBodySelector) {
                     for (let i = 0; i < list.length; i++) {
                         const book = books[parseInt(list[i][0]) - 1];
                         const row = document.createElement('tr');
-                        const reservationTime = new Date(list[i][1]);
+                        const reservationTime = new Date(list[i][1].slice(0, 19));
+
+                        
                         reservationTime.setMinutes(reservationTime.getMinutes() + 18);
-                        row.innerHTML = `
-                            <td>${book.bookTitle}</td>
-                            <td><img src="${book.image}" width="100"></td>
-                            <td>${reservationTime.toLocaleString()}</td>
-                        `;
+                        if (list[i][1].slice(-1) == 'E'){                           
+                            row.innerHTML = `
+                                <td>${book.bookTitle}</td>
+                                <td><img src="${book.image}" width="100"></td>
+                                <td>${reservationTime.toLocaleString()}<br>
+                                <div class="extended">
+                                <button onclick="preventExtend()">Extend loan</button>
+                                <div>
+                                </td>                            
+                            `;
+                        } else {
+                            row.innerHTML = `
+                                <td>${book.bookTitle}</td>
+                                <td><img src="${book.image}" width="100"></td>
+                                <td>${reservationTime.toLocaleString()}<br>
+                                <div class="extend">
+                                <button onclick="extendBorrow(${list[i][0]}, '${list[i][1]}')">Extend loan</button>
+                                <div>
+                                </td>                            
+                            `;
+                        }
 
                         if (overdue.includes(list[i][0].toString())) {
                             row.style.backgroundColor = 'red';
@@ -145,8 +176,36 @@ function cancelReservation(bookId) {
     .catch(error => console.error('Error cancelling reservation:', error));
 }
 
+function extendBorrow(bookId, borrowDate) {
+    fetch(`${ip}/extendLoan`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ info: info, bookId: bookId, borrowDate: borrowDate})
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Loan extended successfully');
+            window.location.href = `/reserved?borrowed`;
+        } else {
+            alert('Failed to extend loan');
+        }
+    })
+    .catch(error => console.error('Error cancelling reservation:', error));
+}
+
 function openTab(evt, tabName) {
     var i, tabcontent, tablinks;
+    var url;
+
+    if (tabName == 'Borrowed'){
+        url = '/reserved?borrowed';
+    } else if (tabName == 'Reserved') {
+        url = '/reserved';
+    }
+    history.pushState(state, "", url);
 
     tabcontent = document.getElementsByClassName("tabcontent");
     for (i = 0; i < tabcontent.length; i++) {
@@ -162,6 +221,10 @@ function openTab(evt, tabName) {
     evt.currentTarget.className += " active";
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    document.getElementsByClassName('tablinks')[0].click();
-});
+function logout() {
+    fetch(`${ip}/logout`, {
+        method: 'POST',
+    }).then(() => {
+        window.location.href = "/";
+    }).catch(error => console.error('Error during logout:', error));
+}
