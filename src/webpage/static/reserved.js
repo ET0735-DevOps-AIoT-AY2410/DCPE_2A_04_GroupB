@@ -14,6 +14,8 @@ const books = [
     { id: 10, bookTitle: 'Book 10', image: 'https://m.media-amazon.com/images/I/61KPPB-34FL._AC_UF1000,1000_QL80_.jpg' },
 ];
 
+const overdue = [];
+
 let info = '';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -30,9 +32,6 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('name').innerHTML = data.name;
             document.getElementById('identity').innerHTML = data.identity;
             info = data.name + "&" + data.identity;
-
-            fetchBooks(info, 0, '#reserved-books-table tbody');
-            fetchBooks(info, 1, '#borrowed-books-table tbody');
         }
     })
     .catch(error => console.error('Error fetching session data:', error));
@@ -44,11 +43,19 @@ document.addEventListener('DOMContentLoaded', () => {
     .then(response => response.json())
     .then(data => {
         if (data[0][info]){
-            console.log(data[0][info])
-            document.getElementById('fine').innerHTML = Math.round(data[0][info] * 100) / 100
+            document.getElementById('fine').innerHTML = parseFloat(data[0][info]).toFixed(2)
         } else {
             document.getElementById('fine').innerHTML = 0
         }
+        
+        for (let i = 0; i < data[1].length; i++){
+            if (data[1][i][2] == info) {
+                overdue.push(data[1][i][0])
+            }
+        }
+        
+        fetchBooks(info, 0, '#reserved-books-table tbody');
+        fetchBooks(info, 1, '#borrowed-books-table tbody');
     })
     .catch(error => console.error('Error fetching session data:', error));
 });
@@ -58,7 +65,7 @@ function fetchBooks(info, selector, tableBodySelector) {
         .then(response => response.json())
         .then(data => {
             const tableBody = document.querySelector(tableBodySelector);
-            tableBody.innerHTML = ''; // Clear any existing rows
+            tableBody.innerHTML = '';
 
             if (selector == 0){
                 if (data[0][info] && data[0][info].length > 0) {
@@ -100,6 +107,12 @@ function fetchBooks(info, selector, tableBodySelector) {
                             <td><img src="${book.image}" width="100"></td>
                             <td>${reservationTime.toLocaleString()}</td>
                         `;
+
+                        if (overdue.includes(list[i][0].toString())) {
+                            row.style.backgroundColor = 'red';
+                        }
+
+
                         tableBody.appendChild(row);
                     }
                 } else {
@@ -124,7 +137,7 @@ function cancelReservation(bookId) {
     .then(data => {
         if (data.success) {
             alert('Reservation cancelled successfully');
-            location.reload(); // Reload the page to update the table
+            location.reload();
         } else {
             alert('Failed to cancel reservation');
         }
@@ -133,7 +146,6 @@ function cancelReservation(bookId) {
 }
 
 function openTab(evt, tabName) {
-    // Declare all variables
     var i, tabcontent, tablinks;
 
     tabcontent = document.getElementsByClassName("tabcontent");
