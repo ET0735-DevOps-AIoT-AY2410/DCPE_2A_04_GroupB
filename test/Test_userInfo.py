@@ -6,7 +6,7 @@ import userInfo
 def test_load_passwords():
     result = userInfo.load_passwords()
 
-    expectedResult = {'test&1234567':'pass1'}
+    expectedResult = {'admin&1234567':'pass1'}
 
     assert(result == expectedResult) 
 
@@ -16,8 +16,8 @@ def test_loadFine():
     assert(result == expectedResult)
 
 def test_addFine():
-    expectedResult = {'test&1234567':1.5}
-    userInfo.addFine({'test&1234567':1.5})
+    expectedResult = {'admin&1234567':1.5}
+    userInfo.addFine({'admin&1234567':1.5})
     result = userInfo.loadFine()
     assert(result == expectedResult)
-    userInfo.addFine({'test&1234567':0})
+    userInfo.addFine({'admin&1234567':0})

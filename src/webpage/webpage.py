@@ -6,6 +6,7 @@ import userInfo
 import readWriteBooks
 from getFromRpi import getReserve
 from calcFine import check_overdue_books
+from dictionaryBooks import dictionary
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
@@ -74,6 +75,22 @@ def cancel_reserve():
 
     return jsonify({'success': True, 'message': 'Reservation cancelled successfully'})
 
+@app.route('/extendLoan', methods=['POST'])
+def extendLoan():
+    data = request.get_json()
+    info = data.get('info')
+    bookId = str(data.get('bookId'))
+    borrowDate = data.get('borrowDate')
+
+    borrowDate = datetime.strptime(borrowDate, '%Y-%m-%d %H:%M:%S')
+    newDate = borrowDate + timedelta(minutes=7)
+    newDate = datetime.strftime(newDate, '%Y-%m-%d %H:%M:%S') + 'E'    
+    
+    print({info: [[bookId, newDate]]})
+    readWriteBooks.changeToReserve({info: [[bookId, newDate]]})
+
+    return jsonify({'success': True, 'message': 'Reservation cancelled successfully'})
+
 @app.route('/reserve', methods=['POST'])
 def reserve():
     if 'identity' not in session:
@@ -118,6 +135,10 @@ def get_fines():
     booklist = readWriteBooks.loadBooks()
     fineList = userInfo.loadFine()
     return jsonify([fineList, check_overdue_books(booklist[1])])
+
+@app.route('/books', methods=['GET'])
+def books():
+    return jsonify(dictionary)
 
 @app.route('/')
 def index():
