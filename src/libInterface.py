@@ -16,6 +16,7 @@ import returnBook
 import extendTime
 import scanRFID
 import barcode
+import libInterface
 
 lcd = LCD.lcd()
 lcd.lcd_clear()
@@ -29,7 +30,8 @@ borrowList = {}
 reserveList = {}
 userFine = {}
 userList = []
-inputKey = 0
+
+exportKey = 0
 
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
@@ -51,8 +53,7 @@ def key_pressed(key):       #check keypad
     global inputKey
     global returnIndex
     inputKey = key
-
-    print(inputKey)
+    libInterface.exportKey = inputKey
     returnIndex.append(inputKey)
     print(returnIndex)
 
@@ -134,7 +135,7 @@ def pageOptions():
     
     sessionTime = datetime.now()
 
-    while(option < 1 or option > 5):
+    while(option < 1 or option > 5 or type(option) != int):
         time.sleep(1)
 
         lcd.lcd_clear()
@@ -143,7 +144,7 @@ def pageOptions():
 
         time.sleep(1)
         option = inputKey
-        if (option >= 1 and option <= 5):
+        if (option >= 1 and option <= 5 and type(option) == int):
             break
 
         lcd.lcd_clear()
@@ -151,7 +152,7 @@ def pageOptions():
         lcd.lcd_display_string('[4]Pay fine', 2)
         time.sleep(1)
         option = inputKey
-        if (option >= 1 and option <= 5):
+        if (option >= 1 and option <= 5 and type(option) == int):
             break
 
         lcd.lcd_clear()
@@ -212,12 +213,8 @@ def returnOption(person, id):
     if id in borrowList and len(borrowList[id]) > 0:
         returnIndex = []
         while(inputKey != '*'): 
-            print(returnIndex)
             returnBook.displayBorrowed(borrowList, person, dictionary)
-            lcd.lcd_clear()
-            lcd.lcd_display_string("Press '*' to", 1)
-            lcd.lcd_display_string('continue', 2)
-            time.sleep(0.5)
+        print(returnIndex)
         toReturnList = returnBook.returnBook(returnIndex, borrowList, person)
         borrowList = removeBorrowed.remove(borrowList, toReturnList)
         
@@ -249,10 +246,6 @@ def extendOption(person, id):
         returnIndex = []
         while(inputKey != '*'): 
             extendTime.display(borrowList, person, dictionary)
-            lcd.lcd_clear()
-            lcd.lcd_display_string("Press '*' to", 1)
-            lcd.lcd_display_string('continue', 2)
-            time.sleep(0.5)
         print(returnIndex)
         borrowList = extendTime.extend(returnIndex, borrowList, person)
         toReturnList = borrowList
