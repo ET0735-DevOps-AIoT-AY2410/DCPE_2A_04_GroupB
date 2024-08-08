@@ -2,8 +2,8 @@ import requests
 
 def getReserve(BASE_URL):
     try:
-        url = f'{BASE_URL}/reserve'
-        response = requests.get(url, headers={'fromSite': 'true'})
+        url = f'{BASE_URL}/reservations'
+        response = requests.get(url)
         bookList = response.json()
     except:
         return [{}, {}]
@@ -12,8 +12,8 @@ def getReserve(BASE_URL):
 
 def getFine(BASE_URL):
     try:
-        url = f'{BASE_URL}/info'
-        response = requests.get(url, headers={'fromSite': 'true', 'info': 'fine'})
+        url = f'{BASE_URL}/fines'
+        response = requests.get(url)
         fineList = response.json()
     except:
         return [{}, {}]
@@ -22,23 +22,13 @@ def getFine(BASE_URL):
 
 def getUsers(BASE_URL):
     try:
-        url = f'{BASE_URL}/info'
-        response = requests.get(url, headers={'fromSite': 'true', 'info': 'user'})
+        url = f'{BASE_URL}/users'
+        response = requests.get(url)
         userList = response.json()
     except:
         return []
     
     return userList
-
-def getDict(BASE_URL):
-    try:
-        url = f'{BASE_URL}/info'
-        response = requests.get(url, headers={'fromSite': 'true', 'info': 'dictionary'})
-        dictionary = response.json()
-    except:
-        return []
-    
-    return dictionary
 
 def main():
     print(getReserve('http://192.168.50.191:5000'))
