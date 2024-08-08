@@ -1,3 +1,5 @@
+const ip = 'http://127.0.0.1:5000'
+
 const overdue = [];
 
 let info = '';
@@ -14,14 +16,30 @@ window.onload = function () {
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => {    
-    fetch(`${ip}/info`, {
+document.addEventListener('DOMContentLoaded', () => {
+
+    fetch(`${ip}/session`, {
         method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-            'fromSite': true,
-            'info': 'fine'
-        },
+        credentials: 'include'
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Session data:', data);
+
+        if (!data.loggedIn) {
+            window.location.href = '/';
+        } else {
+            document.getElementById('name').innerHTML = data.name;
+            document.getElementById('identity').innerHTML = data.identity;
+            info = data.name + "&" + data.identity;
+            state = data
+        }
+    })
+    .catch(error => console.error('Error fetching session data:', error));
+
+    
+    fetch(`${ip}/fines`, {
+        method: 'GET',
     })
     .then(response => response.json())
     .then(data => {
@@ -42,13 +60,8 @@ document.addEventListener('DOMContentLoaded', () => {
     })
     .catch(error => console.error('Error fetching session data:', error));
 
-    fetch(`${ip}/info`, {
+    fetch(`${ip}/books`, {
         method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-            'fromSite': true,
-            'info': 'book'
-        },
     })
     .then(response => response.json())
     .then(data => {
@@ -56,115 +69,98 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-function preventExtend(reason){
-    if (reason == 'extended'){
-        alert("This book has been previously extended")
-    } else if (reason == 'overdue'){
-        alert("This book is already overdue")
-    }
+function preventExtend(){
+    alert("This book has been previously extended")
 }
 
 function fetchBooks(info, selector, tableBodySelector) {
-    fetch(`${ip}/reserve`,{
-        method: 'GET',        
-        headers: {
-            'Content-Type': 'application/json',
-            'fromSite': true
-        },
-    })
-    .then(response => response.json())
-    .then(data => {
-        const tableBody = document.querySelector(tableBodySelector);
-        tableBody.innerHTML = '';
+    fetch(`${ip}/reservations`)
+        .then(response => response.json())
+        .then(data => {
+            const tableBody = document.querySelector(tableBodySelector);
+            tableBody.innerHTML = '';
 
-        if (selector == 0){
-            if (data[0][info] && data[0][info].length > 0) {
-                const list = data[0][info];
-                for (let i = 0; i < list.length; i++) {
-                    const row = document.createElement('tr');
-                    const book = books[parseInt(list[i][0]) - 1];
-                    const reservationTime = new Date(list[i][2].slice(0, 19));
-                    reservationTime.setMinutes(reservationTime.getMinutes() + 5);
+            if (selector == 0){
+                if (data[0][info] && data[0][info].length > 0) {
+                    const list = data[0][info];
+                    for (let i = 0; i < list.length; i++) {
+                        const row = document.createElement('tr');
+                        const book = books[parseInt(list[i][0]) - 1];
+                        const reservationTime = new Date(list[i][2].slice(0, 19));
+                        reservationTime.setMinutes(reservationTime.getMinutes() + 5);
 
-                    row.innerHTML = `
-                        <td>
-                        ${book.bookTitle}<br>
-                        <div class="cancel">
-                        <button onclick="cancelReservation(${list[i][0]})">Cancel reservation</button>
-                        <div>
-                        </td>
-                        <td><img src="${book.image}" width="100"></td>
-                        <td>${list[i][1]}</td>
-                        <td>${reservationTime.toLocaleString()}</td>
-                    `;
-                    tableBody.appendChild(row);
-                }
-            } else {
-                const row = document.createElement('tr');
-                row.innerHTML = '<td colspan="4">No books currently reserved.</td>';
-                tableBody.appendChild(row);
-            }
-        } else if (selector == 1){
-            if (data[1][info] && data[1][info].length > 0) {
-                const list = data[1][info];
-                for (let i = 0; i < list.length; i++) {
-                    const book = books[parseInt(list[i][0]) - 1];
-                    const row = document.createElement('tr');
-                    const reservationTime = new Date(list[i][1].slice(0, 19));
-
-                    
-                    reservationTime.setMinutes(reservationTime.getMinutes() + 18);
-                    if (list[i][1].slice(-1) == 'E'){                           
                         row.innerHTML = `
-                            <td>${book.bookTitle}</td>
-                            <td><img src="${book.image}" width="100"></td>
-                            <td>${reservationTime.toLocaleString()}<br>
-                            <div class="extended">
-                            <button onclick="preventExtend('extended')">Extend loan</button>
+                            <td>
+                            ${book.bookTitle}<br>
+                            <div class="cancel">
+                            <button onclick="cancelReservation(${list[i][0]})">Cancel reservation</button>
                             <div>
-                            </td>                            
-                        `;
-                    } else if (overdue.includes(list[i][0].toString())){
-                        row.style.backgroundColor = '#fc6565';
-                        row.innerHTML = `
-                            <td>${book.bookTitle}</td>
+                            </td>
                             <td><img src="${book.image}" width="100"></td>
-                            <td>${reservationTime.toLocaleString()}<br>
-                            <div class="extended">
-                            <button onclick="preventExtend('overdue')">Extend loan</button>
-                            <div>
-                            </td>                            
+                            <td>${list[i][1]}</td>
+                            <td>${reservationTime.toLocaleString()}</td>
                         `;
-                    } else {
-                        row.innerHTML = `
-                            <td>${book.bookTitle}</td>
-                            <td><img src="${book.image}" width="100"></td>
-                            <td>${reservationTime.toLocaleString()}<br>
-                            <div class="extend">
-                            <button onclick="extendBorrow(${list[i][0]}, '${list[i][1]}')">Extend loan</button>
-                            <div>
-                            </td>                            
-                        `;
+                        tableBody.appendChild(row);
                     }
-
+                } else {
+                    const row = document.createElement('tr');
+                    row.innerHTML = '<td colspan="4">No books currently reserved.</td>';
                     tableBody.appendChild(row);
                 }
-            } else {
-                const row = document.createElement('tr');
-                row.innerHTML = '<td colspan="3">No books currently reserved.</td>';
-                tableBody.appendChild(row);
+            } else if (selector == 1){
+                if (data[1][info] && data[1][info].length > 0) {
+                    const list = data[1][info];
+                    for (let i = 0; i < list.length; i++) {
+                        const book = books[parseInt(list[i][0]) - 1];
+                        const row = document.createElement('tr');
+                        const reservationTime = new Date(list[i][1].slice(0, 19));
+
+                        
+                        reservationTime.setMinutes(reservationTime.getMinutes() + 18);
+                        if (list[i][1].slice(-1) == 'E'){                           
+                            row.innerHTML = `
+                                <td>${book.bookTitle}</td>
+                                <td><img src="${book.image}" width="100"></td>
+                                <td>${reservationTime.toLocaleString()}<br>
+                                <div class="extended">
+                                <button onclick="preventExtend()">Extend loan</button>
+                                <div>
+                                </td>                            
+                            `;
+                        } else {
+                            row.innerHTML = `
+                                <td>${book.bookTitle}</td>
+                                <td><img src="${book.image}" width="100"></td>
+                                <td>${reservationTime.toLocaleString()}<br>
+                                <div class="extend">
+                                <button onclick="extendBorrow(${list[i][0]}, '${list[i][1]}')">Extend loan</button>
+                                <div>
+                                </td>                            
+                            `;
+                        }
+
+                        if (overdue.includes(list[i][0].toString())) {
+                            row.style.backgroundColor = 'red';
+                        }
+
+
+                        tableBody.appendChild(row);
+                    }
+                } else {
+                    const row = document.createElement('tr');
+                    row.innerHTML = '<td colspan="3">No books currently reserved.</td>';
+                    tableBody.appendChild(row);
+                }
             }
-        }
-    })
-    .catch(error => console.error(`Error fetching ${selector} books:`, error));
+        })
+        .catch(error => console.error(`Error fetching ${selector} books:`, error));
 }
 
 function cancelReservation(bookId) {
-    fetch(`${ip}/reserve`, {
-        method: 'DELETE',
+    fetch(`${ip}/cancel_reserve`, {
+        method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
-            'fromSite': true
+            'Content-Type': 'application/json'
         },
         body: JSON.stringify({ info: info, bookId: bookId })
     })
@@ -184,8 +180,7 @@ function extendBorrow(bookId, borrowDate) {
     fetch(`${ip}/extendLoan`, {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
-            'fromSite': true,
+            'Content-Type': 'application/json'
         },
         body: JSON.stringify({ info: info, bookId: bookId, borrowDate: borrowDate})
     })
@@ -224,4 +219,12 @@ function openTab(evt, tabName) {
 
     document.getElementById(tabName).style.display = "block";
     evt.currentTarget.className += " active";
+}
+
+function logout() {
+    fetch(`${ip}/logout`, {
+        method: 'POST',
+    }).then(() => {
+        window.location.href = "/";
+    }).catch(error => console.error('Error during logout:', error));
 }

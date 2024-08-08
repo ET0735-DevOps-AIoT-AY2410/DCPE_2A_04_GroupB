@@ -15,7 +15,3 @@ dictionary = [
     { 'id': 14, 'bookTitle': 'Book 14', 'image': 'https://m.media-amazon.com/images/I/612HfenZf0L._SY342_.jpg' },
     { 'id': 15, 'bookTitle': 'Book 15', 'image': 'https://m.media-amazon.com/images/I/61qSsRBSo6L._SY342_.jpg' },
 ];
-
-libDict = {}
-for book in dictionary:
-    libDict[book['id']] = book['bookTitle']

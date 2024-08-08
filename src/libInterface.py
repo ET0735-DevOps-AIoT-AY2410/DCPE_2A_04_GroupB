@@ -6,7 +6,6 @@ from flask import Flask, jsonify
 import time
 from datetime import datetime
 import logging
-import requests
 
 import lib_loc
 import getBooklist
@@ -31,12 +30,22 @@ borrowList = {}
 reserveList = {}
 userFine = {}
 userList = []
-dictionary = {}
 
 exportKey = 0
 
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
+
+dictionary = {'1': 'Book 1',
+         '2': 'Book 2',
+         '3': 'Book 3',
+         '4': 'Book 4',
+         '5': 'Book 5',
+         '6': 'Book 6',
+         '7': 'Book 7',
+         '8': 'Book 8',
+         '9': 'Book 9',
+        '10': 'Book 10'}
 
 app = Flask(__name__)
 
@@ -182,17 +191,14 @@ def collectOption(person, id, userLoc):
             noOfBorrowed = 0
         toReturnList = collection.collectBook(person, userLoc, reserveList, noOfBorrowed)
         reserveList = removeBorrowed.remove(reserveList, toReturnList)
-        
-        reponse = requests.post(f'{BASE_URL}/return', headers={'info': 'book'}, json=toReturnList)
-        print(reponse.json(), '\n')
-
-        print('borrowed', toReturnList)
 
         if len(toReturnList) > 0:
             lcd.lcd_clear()
             lcd.lcd_display_string("Books collected", 1)
             lcd.lcd_display_string('successfully', 2)
             time.sleep(0.5)
+
+        print('borrowed', toReturnList)
     
     else:
         lcd.lcd_display_string('No book reserved', 1)
@@ -214,12 +220,6 @@ def returnOption(person, id):
         print(returnIndex)
         toReturnList = returnBook.returnBook(returnIndex, borrowList, person)
         borrowList = removeBorrowed.remove(borrowList, toReturnList)
-
-        reponse = requests.post(f'{BASE_URL}/return', headers={'info': 'book'}, json=toReturnList)
-        print(reponse.json(), '\n')
-
-        print('returned', toReturnList)
-        print('borrowed', borrowList)
         
         if len(returnIndex) > 1:
             lcd.lcd_clear()
@@ -229,8 +229,10 @@ def returnOption(person, id):
         else:
             lcd.lcd_clear()
             lcd.lcd_display_string("Exited", 1)
-            time.sleep(0.5)
 
+        print('returned', toReturnList)
+        print('borrowed', borrowList)
+    
     else:
         lcd.lcd_display_string('No book borrowed', 1)
         time.sleep(0.5)
@@ -251,11 +253,6 @@ def extendOption(person, id):
         print(returnIndex)
         borrowList = extendTime.extend(returnIndex, borrowList, person)
         toReturnList = borrowList
-        
-        reponse = requests.post(f'{BASE_URL}/return', headers={'info': 'book'}, json=toReturnList)
-        print(reponse.json(), '\n')
-
-        print('borrowed', borrowList)
 
         if len(returnIndex) > 1:
             lcd.lcd_clear()
@@ -265,7 +262,8 @@ def extendOption(person, id):
         else:
             lcd.lcd_clear()
             lcd.lcd_display_string("Exited", 1)
-            time.sleep(0.5)
+
+        print('borrowed', borrowList)
     
     else:
         lcd.lcd_display_string('No book borrowed', 1)
@@ -314,10 +312,6 @@ def fineOption(id):
                 time.sleep(1)
 
                 finePaid = id
-                
-                reponse = requests.post(f'{BASE_URL}/return', headers={'info': 'fine'}, json=finePaid)
-                print(reponse.json(), '\n')
-
                 return
 
         lcd.lcd_clear()
@@ -425,14 +419,12 @@ def getList():
     global fineList
     global userFine
     global userList
-    global dictionary
 
-    checkReserve = {}
-    checkBorrow = {}
-    checkUserFine = {}
-    checkUserList = []
-    checkFine = {}
-    checkDict = {}
+    checkChangeReserve = {}
+    checkChangeBorrow = {}
+    checkChangeUserFine = {}
+    checkChangeUserList = []
+    checkChangeFine = {}
 
     while(True):
         data = getBooklist.getReserve(BASE_URL)
@@ -442,26 +434,22 @@ def getList():
         userFine = fineData[0]
         fineList = fineData[1]
         userList = getBooklist.getUsers(BASE_URL)
-        dictionary = getBooklist.getDict(BASE_URL)
 
-        if reserveList != checkReserve:
+        if reserveList != checkChangeReserve:
             print('reserve: ', reserveList)
-            checkReserve = reserveList
-        if borrowList != checkBorrow:
+            checkChangeReserve = reserveList
+        if borrowList != checkChangeBorrow:
             print('borrow: ', borrowList)
-            checkBorrow = borrowList
-        if userFine != checkUserFine:
+            checkChangeBorrow = borrowList
+        if userFine != checkChangeUserFine:
             print('user fines: ', userFine)
-            checkUserFine = userFine
-        if fineList != checkFine:
+            checkChangeUserFine = userFine
+        if fineList != checkChangeFine:
             print('fines: ', fineList)
-            checkFine = fineList
-        if userList != checkUserList:
+            checkChangeFine = fineList
+        if userList != checkChangeUserList:
             print('user accounts: ', userList)
-            checkUserList = userList      
-        if dictionary != checkDict:
-            print('dictionary books: ', dictionary)
-            checkDict = dictionary
+            checkChangeUserList = userList
 
 def main():
     dc_motor.init()
@@ -478,6 +466,20 @@ def main():
 
     webthread = Thread(target=run)
     webthread.start()
+
+@app.route('/', methods=['GET'])
+def about():
+    global toReturnList
+    tempReturn = toReturnList
+    toReturnList = {}
+    return jsonify(tempReturn)
+
+@app.route('/finepaid', methods=['GET'])
+def fine():
+    global finePaid
+    tempfinepaid = finePaid
+    finePaid = ''
+    return jsonify(tempfinepaid)
 
 @app.route('/cameraInstruct', methods=['GET'])
 def cam():

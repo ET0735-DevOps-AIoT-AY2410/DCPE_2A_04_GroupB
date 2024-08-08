@@ -1,3 +1,5 @@
+const ip = 'http://127.0.0.1:5000'
+
 var books = [];
 
 const reserveBorrowList = [];
@@ -52,39 +54,46 @@ function checkLocation(event) {
 }
 
 function loadBorrowedReserved(info) {
-    fetch(`${ip}/reserve`,{
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-            'fromSite': true,
-            'info': 'book'
-        },
-    })
-    .then(response => response.json())
-    .then(data => {
-        for (let i = 0; i < 2; i++){
-            if (data[i][info] && data[i][info].length > 0) {
-                const list = data[i][info];
-                for (let j = 0; j < list.length; j++) {
-                    bookId = list[j][0];
+    fetch(`${ip}/reservations`)
+        .then(response => response.json())
+        .then(data => {
+            for (let i = 0; i < 2; i++){
+                if (data[i][info] && data[i][info].length > 0) {
+                    const list = data[i][info];
+                    for (let j = 0; j < list.length; j++) {
+                        bookId = list[j][0];
 
-                    reserveBorrowList.push(bookId);
+                        reserveBorrowList.push(bookId);
+                    }
                 }
             }
-        }
-    })
-    .catch(error => console.error(`Error fetching books:`, error));
-}
+        })
+        .catch(error => console.error(`Error fetching books:`, error));
+    }
 
 //Load books
 document.addEventListener('DOMContentLoaded', () => {
-    fetch(`${ip}/info`, {
+    fetch(`${ip}/session`, {
         method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-            'fromSite': true,
-            'info': 'book'
-        },
+        credentials: 'include'
+    })
+    .then(response => {
+        return response.json();
+    })
+    .then(data => {
+        console.log('Session data:', data);
+        if (!data.loggedIn) {
+            window.location.href = '/';
+        } else {
+            document.getElementById('name').innerHTML = data.name;
+            document.getElementById('identity').innerHTML = data.identity;
+            info = data.name + "&" + data.identity;
+            loadBorrowedReserved (info)
+        }
+    })
+
+    fetch(`${ip}/books`, {
+        method: 'GET',
     })
     .then(response => response.json())
     .then(data => {
@@ -152,8 +161,7 @@ document.getElementById('reservationForm').addEventListener('submit', function(e
         fetch(`${ip}/reserve`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'fromSite': true,
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify(formData)
         })
@@ -169,3 +177,11 @@ document.getElementById('reservationForm').addEventListener('submit', function(e
         .catch(error => console.error('Error:', error));
     }  
 });
+
+function logout() {
+    fetch(`${ip}/logout`, {
+        method: 'POST',
+    }).then(() => {
+        window.location.href = "/";
+    }).catch(error => console.error('Error during logout:', error));
+}

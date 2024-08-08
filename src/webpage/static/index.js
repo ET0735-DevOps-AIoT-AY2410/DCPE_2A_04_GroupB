@@ -1,14 +1,15 @@
+const ip = 'http://127.0.0.1:5000'
+
 document.getElementById('loginForm').addEventListener('submit', function(event) {
     event.preventDefault();
     const identity = document.getElementById('identity').value;
     const password = document.getElementById('password').value;
     const user = document.getElementById('user').value;
 
-    fetch(`${ip}/auth`, {
+    fetch(`${ip}/login`, {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
-            'fromSite': true,
+            'Content-Type': 'application/json'
         },
         body: JSON.stringify({ identity: identity, password: password, user: user})
     })
