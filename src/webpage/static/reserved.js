@@ -114,24 +114,24 @@ function fetchBooks(info, selector, tableBodySelector) {
 
                     
                     reservationTime.setMinutes(reservationTime.getMinutes() + 18);
-                    if (list[i][1].slice(-1) == 'E'){                           
-                        row.innerHTML = `
-                            <td>${book.bookTitle}</td>
-                            <td><img src="${book.image}" width="100"></td>
-                            <td>${reservationTime.toLocaleString()}<br>
-                            <div class="extended">
-                            <button onclick="preventExtend('extended')">Extend loan</button>
-                            <div>
-                            </td>                            
-                        `;
-                    } else if (overdue.includes(list[i][0].toString())){
-                        row.style.backgroundColor = '#fc6565';
+                    if (overdue.includes(list[i][0].toString())){       
+                        row.style.backgroundColor = '#fc6565';                    
                         row.innerHTML = `
                             <td>${book.bookTitle}</td>
                             <td><img src="${book.image}" width="100"></td>
                             <td>${reservationTime.toLocaleString()}<br>
                             <div class="extended">
                             <button onclick="preventExtend('overdue')">Extend loan</button>
+                            <div>
+                            </td>                            
+                        `;
+                    } else if (list[i][1].slice(-1) == 'E'){
+                        row.innerHTML = `
+                            <td>${book.bookTitle}</td>
+                            <td><img src="${book.image}" width="100"></td>
+                            <td>${reservationTime.toLocaleString()}<br>
+                            <div class="extended">
+                            <button onclick="preventExtend('extended')">Extend loan</button>
                             <div>
                             </td>                            
                         `;
