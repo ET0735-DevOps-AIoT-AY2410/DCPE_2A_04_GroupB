@@ -1,7 +1,6 @@
 var books = [];
 
 const reserveBorrowList = [];
-
 //Turn on/off overlay
 function on() {
     document.getElementById("chosenBook").innerHTML = document.getElementById('reservedBook').value;
@@ -131,6 +130,12 @@ document.getElementById('reservationForm').addEventListener('submit', function(e
         document.getElementById("overlay-box").style.display = "none";
         document.getElementById('confirmationMessage').style.display = 'none';
 
+    } else if (reserveBorrowList.length >= 10){
+        alert("Only 10 books can be borrowed at a time")
+        document.getElementById("overlay").style.display = "none";
+        document.getElementById("overlay-box").style.display = "none";
+        document.getElementById('confirmationMessage').style.display = 'none';
+
     } else {
         const formData = {
             name: document.getElementById('name').innerHTML,
@@ -141,7 +146,7 @@ document.getElementById('reservationForm').addEventListener('submit', function(e
             reserveTime: new Date().toISOString()
         };
 
-        reserveBorrowList.push(document.getElementById('id').value)
+        reserveBorrowList.push(document.getElementById('id').value.toString())
 
         //Public IP below
         fetch(`${ip}/reserve`, {

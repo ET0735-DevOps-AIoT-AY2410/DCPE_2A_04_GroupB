@@ -31,6 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('name').innerHTML = data.name;
                 document.getElementById('identity').innerHTML = data.identity;
                 info = data.name + "&" + data.identity;
+                loadBorrowedReserved(info) 
             }
         } else {
             if (data.loggedIn) {

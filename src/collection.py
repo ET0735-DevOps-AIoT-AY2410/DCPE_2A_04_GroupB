@@ -31,7 +31,9 @@ def collectBook(person, location, reserveList, noOfBorrowed):
             if flag == 1:
                 lcd.lcd_display_string("Maximum books", 1)
                 lcd.lcd_display_string("reached (10)", 2)
-        
+          
+                return borrowList
+      
         lcd.lcd_display_string(f"{len(tempReserveList) - len(borrowList[info])} remaining books", 1)
         lcd.lcd_display_string(f"at Location {(location%2+1)}", 2)
         time.sleep(0.5)

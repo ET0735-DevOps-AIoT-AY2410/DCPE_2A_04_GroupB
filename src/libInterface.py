@@ -64,6 +64,7 @@ def auth():                 #scan id and authenticate
     lcd.lcd_clear()
     lcd.lcd_display_string("Please scan your", 1)
     lcd.lcd_display_string("admin card      ", 2)
+    time.sleep(0.5)
     attmps = 1
 
     while(attmps < 10):
@@ -88,6 +89,7 @@ def auth():                 #scan id and authenticate
             lcd.lcd_clear()
             lcd.lcd_display_string(person[0], 1)
             lcd.lcd_display_string(person[1], 2)
+            time.sleep(0.5)
             
             return True, person
 
@@ -194,6 +196,7 @@ def collectOption(person, id, userLoc):
     
     else:
         lcd.lcd_display_string('No book reserved', 1)
+        time.sleep(0.5)
 
 def returnOption(person, id):
     global borrowList
@@ -226,9 +229,11 @@ def returnOption(person, id):
         else:
             lcd.lcd_clear()
             lcd.lcd_display_string("Exited", 1)
+            time.sleep(0.5)
 
     else:
         lcd.lcd_display_string('No book borrowed', 1)
+        time.sleep(0.5)
 
 def extendOption(person, id):
     global borrowList
@@ -260,9 +265,11 @@ def extendOption(person, id):
         else:
             lcd.lcd_clear()
             lcd.lcd_display_string("Exited", 1)
+            time.sleep(0.5)
     
     else:
         lcd.lcd_display_string('No book borrowed', 1)
+        time.sleep(0.5)
 
 def fineOption(id):
     global userFine
@@ -325,6 +332,7 @@ def fineOption(id):
     
     else:
         lcd.lcd_display_string('No fine incurred', 1)
+        time.sleep(0.5)
 
 def loc_loop():
     global inputKey
@@ -433,6 +441,7 @@ def getList():
         fineData = getBooklist.getFine(BASE_URL)
         userFine = fineData[0]
         fineList = fineData[1]
+        userList = getBooklist.getUsers(BASE_URL)
         dictionary = getBooklist.getDict(BASE_URL)
 
         if reserveList != checkReserve:

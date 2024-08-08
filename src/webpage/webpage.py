@@ -2,14 +2,15 @@ from flask import Flask, request, jsonify, render_template, session
 from flask_cors import CORS
 from datetime import datetime, timedelta
 import logging
-import userInfo
-import readWriteBooks
-from update import update
-from calcFine import check_overdue_books
-from dictionaryBooks import dictionary, libDict
+import time
+from threading import Thread
 
 import removeReserved
+import userInfo
+import readWriteBooks
 import calcFine
+from update import update
+from dictionaryBooks import dictionary, libDict
 
 print(libDict)
 
@@ -20,6 +21,7 @@ log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
 
 app.secret_key = 'super_secret_key'
+info = ''
 
 BASE_URL = 'http://192.168.50.170:5001'
 
@@ -132,10 +134,10 @@ def cancel_reserve():
     return jsonify({'success': True, 'message': 'Reservation cancelled successfully'})
 
 @app.route('/info', methods=['GET'])
-def books():
-    update()
+def info():
     if request.headers.get('fromSite') != 'true':
         return jsonify({'success': False, 'message': 'Unauthorised access'})
+    update()
     
     if request.headers.get('info') == 'book':
         return jsonify(dictionary)
@@ -143,7 +145,7 @@ def books():
     elif request.headers.get('info') == 'fine':
         booklist = readWriteBooks.loadBooks()
         fineList = userInfo.loadFine()
-        return jsonify([fineList, check_overdue_books(booklist[1])])
+        return jsonify([fineList, calcFine.check_overdue_books(booklist[1])])
     
     elif request.headers.get('info') == 'user':
         userList = []
@@ -180,7 +182,6 @@ def extendLoan():
 
 @app.route('/return', methods=['POST'])
 def returned():
-    update()
     data = readWriteBooks.loadBooks()
     removeReserved.checkReserveOver(data[0])
 
@@ -189,7 +190,9 @@ def returned():
     
     if request.headers.get('info') == 'book':
         bookList = request.get_json()
-
+        if bookList[list(bookList.keys())[0]] == []:
+            return jsonify({'success': True, 'message': 'Database edited'})
+        
         if len(bookList[list(bookList.keys())[0]][0]) == 2: #Test borrowed Book format
                 readWriteBooks.changeToReserve(bookList)
     
@@ -202,7 +205,7 @@ def returned():
     
     elif request.headers.get('info') == 'fine':
         id = request.get_json()
-        
+
         userInfo.addFine({id: 0})
         return jsonify({'success': True, 'message': 'Fine paid'})
     
