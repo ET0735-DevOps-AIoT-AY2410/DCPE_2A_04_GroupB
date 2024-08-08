@@ -202,8 +202,11 @@ def returned():
     
     elif request.headers.get('info') == 'fine':
         id = request.get_json()
+        
         userInfo.addFine({id: 0})
         return jsonify({'success': True, 'message': 'Fine paid'})
+    
+    return jsonify({'success': False, 'message': 'Error occured'})
 
 @app.route('/')
 def index():

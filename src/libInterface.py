@@ -308,7 +308,7 @@ def fineOption(id):
 
                 finePaid = id
                 
-                reponse = requests.post(f'{BASE_URL}/return', headers={'info': 'fine'}, json=toReturnList)
+                reponse = requests.post(f'{BASE_URL}/return', headers={'info': 'fine'}, json=finePaid)
                 print(reponse.json(), '\n')
 
                 return
