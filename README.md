@@ -6,7 +6,7 @@ It also contains the code for the Library Book Reservation and Collection System
 
 Before running app:
 - IP of server updated in:
-    - static .js files
+    - config .js files
     - libInterface.py
 
 # Our functions
