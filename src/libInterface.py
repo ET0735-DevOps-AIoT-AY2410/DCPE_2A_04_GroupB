@@ -7,6 +7,7 @@ import time
 from datetime import datetime
 import logging
 import requests
+import os
 
 import lib_loc
 import getBooklist
@@ -21,8 +22,8 @@ import libInterface
 
 lcd = LCD.lcd()
 lcd.lcd_clear()
-
-BASE_URL = 'http://192.168.50.191:5000'
+BASE_URL = os.environ['IP']
+print(BASE_URL)
 
 returnIndex = []
 instruct = ''
