@@ -113,5 +113,5 @@ scanRFID.py:
 
 To run container:
 ```
-docker run --privileged=true -p 5001:5001 --env IP='http://172.23.18.207:5000' --mount type=bind,source="$(pwd)",target=/app/scannedImage testlib
+docker run -it --privileged=true -p 5001:5001 --env IP='http://172.23.18.207:5000' --mount type=bind,source="$(sudo find /home/pi -name scannedImage)",target=/app/scannedImage dionchoy/testlib
 ```
