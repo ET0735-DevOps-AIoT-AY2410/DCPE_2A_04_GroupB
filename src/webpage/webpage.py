@@ -23,8 +23,6 @@ log.setLevel(logging.ERROR)
 app.secret_key = 'super_secret_key'
 info = ''
 
-BASE_URL = 'http://172.23.14.232:5001'
-
 passwords = userInfo.load_passwords()
 
 @app.route('/auth', methods=['POST'])
