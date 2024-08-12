@@ -24,22 +24,19 @@ def collectBook(person, location, reserveList, noOfBorrowed):
                 flag = 1
     
     if len(tempReserveList) != 0:
-        if len(borrowList[info]) == 0 and flag == 0: 
-            if location == 1:
-                output = "Go to Location 2"
-            elif location == 2:
-                output = "Go to Location 1"
-            lcd.lcd_display_string("Wrong Location", 1)
-            lcd.lcd_display_string(output, 2)
-            time.sleep(0.5)
-
-        else:
+        if len(borrowList[info]) != 0:
             for i in range(len(borrowList[info])):
                 dispense.dispenseBook()
 
             if flag == 1:
                 lcd.lcd_display_string("Maximum books", 1)
                 lcd.lcd_display_string("reached (10)", 2)
+          
+                return borrowList
+      
+        lcd.lcd_display_string(f"{len(tempReserveList) - len(borrowList[info])} remaining books", 1)
+        lcd.lcd_display_string(f"at Location {(location%2+1)}", 2)
+        time.sleep(0.5)
 
     
     else:

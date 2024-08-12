@@ -4,6 +4,8 @@ from threading import Thread
 import time
 import parseBooklist
 
+import libInterface
+
 lcd = LCD.lcd()
 lcd.lcd_clear()
 returnIndex = []
@@ -22,32 +24,46 @@ def displayBorrowed(borrowList, person, dictionary):
         for i in range(len(displayList)):
             if i%2 == 1:
                 lcd.lcd_clear()
-                lcd.lcd_display_string(dictionary[displayList[i-1][0]] + ' press ' + str(i), 1)
-                lcd.lcd_display_string(dictionary[displayList[i][0]] + ' press ' + str(i+1), 2)
+                lcd.lcd_display_string(f"[{i}]{dictionary[displayList[i-1][0]]}", 1)
+                lcd.lcd_display_string(f"[{(i+1)%10}]{dictionary[displayList[i][0]]}", 2)
                 time.sleep(0.5)
+                
+            print(libInterface.exportKey)
+            if libInterface.exportKey == "*":
+                return
 
     elif len(displayList)%2 == 1:
         for i in range(len(displayList)):
             if i%2 == 1 and i<(len(displayList)-1):
                 lcd.lcd_clear()
-                lcd.lcd_display_string(dictionary[displayList[i-1][0]] + ' press ' + str(i), 1)
-                lcd.lcd_display_string(dictionary[displayList[i][0]] + ' press ' + str(i+1), 2)
+                lcd.lcd_display_string(f"[{i}]{dictionary[displayList[i-1][0]]}", 1)
+                lcd.lcd_display_string(f"[{(i+1)%10}]{dictionary[displayList[i][0]]}", 2)
                 time.sleep(0.5)
             elif i == (len(displayList)-1):
                 lcd.lcd_clear()
-                lcd.lcd_display_string(dictionary[displayList[i][0]] + ' press ' + str(i+1), 1)
+                lcd.lcd_display_string(f"[{i+1}]{dictionary[displayList[i][0]]}", 1)
                 time.sleep(0.5)
+                
+            if libInterface.exportKey == "*":
+                return
 
+    lcd.lcd_clear()
+    lcd.lcd_display_string("Press '*' to", 1)
+    lcd.lcd_display_string('continue', 2)
+    time.sleep(0.5)
 
 def returnBook(returnIndex, borrowList, person):
-    returnIndex.remove('*')
+    for i in returnIndex:
+        if type(i) != int:
+            returnIndex.remove(i)
+    returnIndex = set(returnIndex)
     info = person[0] + '&' + person[1]
     borrowList[info]
     reserveList = {}
     
     reserveList.setdefault(info, [])
     for index in returnIndex:
-        if index <= len(borrowList[info]) and index > 0:
+        if index <= len(borrowList[info]) and index > -1:
             reserveList[info].append([borrowList[info][int(index)-1][0]])
 
     return reserveList

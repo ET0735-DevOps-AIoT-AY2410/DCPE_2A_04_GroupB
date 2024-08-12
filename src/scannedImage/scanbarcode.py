@@ -23,7 +23,7 @@ def main():
     while(True):
         response = getInstruct()
         if response == 'scan':
-            capture_image('scannedImage/barcode.jpg')
+            capture_image('barcode.jpg')
             print('scanned successfully')
 
 if __name__ == "__main__":

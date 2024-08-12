@@ -4,8 +4,9 @@ from hal import hal_dc_motor as dc_motor
 from threading import Thread
 from flask import Flask, jsonify
 import time
-import datetime
+from datetime import datetime
 import logging
+import requests
 
 import lib_loc
 import getBooklist
@@ -16,12 +17,12 @@ import returnBook
 import extendTime
 import scanRFID
 import barcode
+import libInterface
 
 lcd = LCD.lcd()
 lcd.lcd_clear()
-dc_motor.init()
 
-BASE_URL = 'http://172.23.17.77:5000'
+BASE_URL = 'http://192.168.50.191:5000'
 
 returnIndex = []
 instruct = ''
@@ -30,20 +31,12 @@ borrowList = {}
 reserveList = {}
 userFine = {}
 userList = []
+dictionary = {}
+
+exportKey = 0
 
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
-
-dictionary = {'1': 'Book 1',
-         '2': 'Book 2',
-         '3': 'Book 3',
-         '4': 'Book 4',
-         '5': 'Book 5',
-         '6': 'Book 6',
-         '7': 'Book 7',
-         '8': 'Book 8',
-         '9': 'Book 9',
-        '10': 'Book 10'}
 
 app = Flask(__name__)
 
@@ -51,8 +44,7 @@ def key_pressed(key):       #check keypad
     global inputKey
     global returnIndex
     inputKey = key
-
-    print(inputKey)
+    libInterface.exportKey = inputKey
     returnIndex.append(inputKey)
     print(returnIndex)
 
@@ -72,6 +64,7 @@ def auth():                 #scan id and authenticate
     lcd.lcd_clear()
     lcd.lcd_display_string("Please scan your", 1)
     lcd.lcd_display_string("admin card      ", 2)
+    time.sleep(0.5)
     attmps = 1
 
     while(attmps < 10):
@@ -96,6 +89,7 @@ def auth():                 #scan id and authenticate
             lcd.lcd_clear()
             lcd.lcd_display_string(person[0], 1)
             lcd.lcd_display_string(person[1], 2)
+            time.sleep(0.5)
             
             return True, person
 
@@ -120,10 +114,10 @@ def auth():                 #scan id and authenticate
                 lcd.lcd_display_string("Please press '#'", 1)
                 lcd.lcd_display_string(output, 2)
                 attmps += 1
-                while(inputKey != '#'): 
+                while(inputKey != '#' and inputKey != '*'): 
                     time.sleep(1)
     
-                if attmps == 10:
+                if attmps == 10 or inputKey == '*':
                     lcd.lcd_clear()
                     return [False]
 
@@ -134,28 +128,28 @@ def pageOptions():
     
     sessionTime = datetime.now()
 
-    while(option < 1 or option > 5):
+    while(option < 1 or option > 5 or type(option) != int):
         time.sleep(1)
 
         lcd.lcd_clear()
-        lcd.lcd_display_string('Collect press 1', 1)
-        lcd.lcd_display_string('Return press 2', 2)
+        lcd.lcd_display_string('[1]Collect', 1)
+        lcd.lcd_display_string('[2]Return', 2)
 
         time.sleep(1)
         option = inputKey
-        if (option >= 1 and option <= 5):
+        if (option >= 1 and option <= 5 and type(option) == int):
             break
 
         lcd.lcd_clear()
-        lcd.lcd_display_string('Extend press 3', 1)
-        lcd.lcd_display_string('Pay fine press 4', 2)
+        lcd.lcd_display_string('[3]Extend', 1)
+        lcd.lcd_display_string('[4]Pay fine', 2)
         time.sleep(1)
         option = inputKey
-        if (option >= 1 and option <= 5):
+        if (option >= 1 and option <= 5 and type(option) == int):
             break
 
         lcd.lcd_clear()
-        lcd.lcd_display_string('Exit press 5', 1)
+        lcd.lcd_display_string('[5]Exit', 1)
         time.sleep(1)
 
         option = inputKey
@@ -163,7 +157,7 @@ def pageOptions():
         currentTime = datetime.now()
         delta = currentTime - sessionTime
         min = round(delta.total_seconds())/60
-        if min == 1:
+        if min >= 1:
             lcd.lcd_clear()
             lcd.lcd_display_string('Session timed', 1)
             lcd.lcd_display_string('out', 2)
@@ -188,15 +182,21 @@ def collectOption(person, id, userLoc):
             noOfBorrowed = 0
         toReturnList = collection.collectBook(person, userLoc, reserveList, noOfBorrowed)
         reserveList = removeBorrowed.remove(reserveList, toReturnList)
-
-        lcd.lcd_display_string("Books collected", 1)
-        lcd.lcd_display_string('successfully', 2)
-        time.sleep(0.5)
+        
+        reponse = requests.post(f'{BASE_URL}/return', headers={'info': 'book'}, json=toReturnList)
+        print(reponse.json(), '\n')
 
         print('borrowed', toReturnList)
+
+        if len(toReturnList) > 0:
+            lcd.lcd_clear()
+            lcd.lcd_display_string("Books collected", 1)
+            lcd.lcd_display_string('successfully', 2)
+            time.sleep(0.5)
     
     else:
         lcd.lcd_display_string('No book reserved', 1)
+        time.sleep(0.5)
 
 def returnOption(person, id):
     global borrowList
@@ -210,24 +210,30 @@ def returnOption(person, id):
     if id in borrowList and len(borrowList[id]) > 0:
         returnIndex = []
         while(inputKey != '*'): 
-            print(returnIndex)
             returnBook.displayBorrowed(borrowList, person, dictionary)
-            lcd.lcd_clear()
-            lcd.lcd_display_string("Press '*' to", 1)
-            lcd.lcd_display_string('continue', 2)
-            time.sleep(0.5)
+        print(returnIndex)
         toReturnList = returnBook.returnBook(returnIndex, borrowList, person)
         borrowList = removeBorrowed.remove(borrowList, toReturnList)
 
-        lcd.lcd_display_string("Books returned", 1)
-        lcd.lcd_display_string('successfully', 2)
-        time.sleep(0.5)
+        reponse = requests.post(f'{BASE_URL}/return', headers={'info': 'book'}, json=toReturnList)
+        print(reponse.json(), '\n')
 
         print('returned', toReturnList)
         print('borrowed', borrowList)
-    
+        
+        if len(returnIndex) > 1:
+            lcd.lcd_clear()
+            lcd.lcd_display_string("Books returned", 1)
+            lcd.lcd_display_string('successfully', 2)
+            time.sleep(0.5)
+        else:
+            lcd.lcd_clear()
+            lcd.lcd_display_string("Exited", 1)
+            time.sleep(0.5)
+
     else:
         lcd.lcd_display_string('No book borrowed', 1)
+        time.sleep(0.5)
 
 def extendOption(person, id):
     global borrowList
@@ -242,22 +248,28 @@ def extendOption(person, id):
         returnIndex = []
         while(inputKey != '*'): 
             extendTime.display(borrowList, person, dictionary)
-            lcd.lcd_clear()
-            lcd.lcd_display_string("Press '*' to", 1)
-            lcd.lcd_display_string('continue', 2)
-            time.sleep(0.5)
         print(returnIndex)
         borrowList = extendTime.extend(returnIndex, borrowList, person)
         toReturnList = borrowList
-
-        lcd.lcd_display_string("Books extended", 1)
-        lcd.lcd_display_string('successfully', 2)
-        time.sleep(0.5)
+        
+        reponse = requests.post(f'{BASE_URL}/return', headers={'info': 'book'}, json=toReturnList)
+        print(reponse.json(), '\n')
 
         print('borrowed', borrowList)
+
+        if len(returnIndex) > 1:
+            lcd.lcd_clear()
+            lcd.lcd_display_string("Books returned", 1)
+            lcd.lcd_display_string('successfully', 2)
+            time.sleep(0.5)
+        else:
+            lcd.lcd_clear()
+            lcd.lcd_display_string("Exited", 1)
+            time.sleep(0.5)
     
     else:
         lcd.lcd_display_string('No book borrowed', 1)
+        time.sleep(0.5)
 
 def fineOption(id):
     global userFine
@@ -302,6 +314,10 @@ def fineOption(id):
                 time.sleep(1)
 
                 finePaid = id
+                
+                reponse = requests.post(f'{BASE_URL}/return', headers={'info': 'fine'}, json=finePaid)
+                print(reponse.json(), '\n')
+
                 return
 
         lcd.lcd_clear()
@@ -316,6 +332,7 @@ def fineOption(id):
     
     else:
         lcd.lcd_display_string('No fine incurred', 1)
+        time.sleep(0.5)
 
 def loc_loop():
     global inputKey
@@ -408,12 +425,14 @@ def getList():
     global fineList
     global userFine
     global userList
+    global dictionary
 
-    checkChangeReserve = {}
-    checkChangeBorrow = {}
-    checkChangeUserFine = {}
-    checkChangeUserList = []
-    checkChangeFine = {}
+    checkReserve = {}
+    checkBorrow = {}
+    checkUserFine = {}
+    checkUserList = []
+    checkFine = {}
+    checkDict = {}
 
     while(True):
         data = getBooklist.getReserve(BASE_URL)
@@ -423,24 +442,29 @@ def getList():
         userFine = fineData[0]
         fineList = fineData[1]
         userList = getBooklist.getUsers(BASE_URL)
+        dictionary = getBooklist.getDict(BASE_URL)
 
-        if reserveList != checkChangeReserve:
+        if reserveList != checkReserve:
             print('reserve: ', reserveList)
-            checkChangeReserve = reserveList
-        if borrowList != checkChangeBorrow:
+            checkReserve = reserveList
+        if borrowList != checkBorrow:
             print('borrow: ', borrowList)
-            checkChangeBorrow = borrowList
-        if userFine != checkChangeUserFine:
+            checkBorrow = borrowList
+        if userFine != checkUserFine:
             print('user fines: ', userFine)
-            checkChangeUserFine = userFine
-        if fineList != checkChangeFine:
+            checkUserFine = userFine
+        if fineList != checkFine:
             print('fines: ', fineList)
-            checkChangeFine = fineList
-        if userList != checkChangeUserList:
+            checkFine = fineList
+        if userList != checkUserList:
             print('user accounts: ', userList)
-            checkChangeUserList = userList
+            checkUserList = userList      
+        if dictionary != checkDict:
+            print('dictionary books: ', dictionary)
+            checkDict = dictionary
 
 def main():
+    dc_motor.init()
     keypad.init(key_pressed)
 
     keypad_thread = Thread(target=keypad.get_key)
@@ -454,20 +478,6 @@ def main():
 
     webthread = Thread(target=run)
     webthread.start()
-
-@app.route('/', methods=['GET'])
-def about():
-    global toReturnList
-    tempReturn = toReturnList
-    toReturnList = {}
-    return jsonify(tempReturn)
-
-@app.route('/finepaid', methods=['GET'])
-def fine():
-    global finePaid
-    tempfinepaid = finePaid
-    finePaid = ''
-    return jsonify(tempfinepaid)
 
 @app.route('/cameraInstruct', methods=['GET'])
 def cam():

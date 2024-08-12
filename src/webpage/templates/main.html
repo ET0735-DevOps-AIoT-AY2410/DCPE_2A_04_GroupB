@@ -12,8 +12,8 @@
     </header>
 
     <div class="navbar">
-        <div class="about">
-            <a href="{{ url_for('about') }}">About</a>
+        <div class="reserved">
+            <a href="{{ url_for('reserved') }}">Book List</a>
         </div>
         <div class="signOut">
             <div id="name"></div>
@@ -23,7 +23,7 @@
             </div>
         </div>
     </div>
-    
+
     <div class="overlay" id="overlay"></div>
     <div class="overlay-box" id="overlay-box">
         <h2 id="chosenBook"></h2>
@@ -48,12 +48,12 @@
                 
             </div>
             <div class="form-group">
-                <button type="submit" onclick="checkLocation()">Reserve</button>
+                <button type="submit" onclick="checkLocation(event)">Reserve</button>
             </div>
         </form>
         
         <div class="form-group">
-            <button type="cancel" onclick="off()">Continue Browsing</button>
+            <button type="cancel" onclick="off(event)">Continue Browsing</button>
         </div>
 
         <div class="confirmation" id="confirmationMessage">
@@ -67,6 +67,8 @@
         </section>
     </main>
 
+    <script src="{{ url_for('static', filename='config.js') }}"></script>
+    <script src="{{ url_for('static', filename='auth.js') }}"></script>
     <script src="{{ url_for('static', filename='main.js') }}"></script>
 </body>
 </html>

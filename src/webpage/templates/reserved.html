@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reserved Books</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Reserved Books</h1>
+    </header>
+    
+    <div class="navbar">
+        <div class="reserved">
+            <a href="{{ url_for('main') }}">Back to homepage</a>
+        </div>
+        
+        <div class="signOut">
+            <div id="name"></div>
+            <div id="identity"></div>
+            <div>
+                <a href="{{ url_for('index') }}" onclick="logout()">Sign Out</a>
+            </div>
+        </div>
+    </div>
+    
+    <main>
+        <div style="font-size: 0">
+            <strong style="font-size: 20px">Fine: </strong> 
+            <span style="font-size: 20px">$</span>
+            <span style="font-size: 20px" id="fine"></span>
+        </div>
+
+        <div class="tab">
+            <button class="tablinks" onclick="openTab(event, 'Reserved')">Reserved Books</button>
+            <button class="tablinks" onclick="openTab(event, 'Borrowed')">Borrowed Books</button>
+        </div>
+
+        <section id="bookList">
+            <div id="Reserved" class="tabcontent">
+                <table id="reserved-books-table">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Image</th>
+                            <th>Location</th>
+                            <th>End Reservation Date</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div id="Borrowed" class="tabcontent">
+                <table id="borrowed-books-table">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Image</th>
+                            <th>End Borrow Date </th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <script src="{{ url_for('static', filename='config.js') }}"></script>
+    <script src="{{ url_for('static', filename='auth.js') }}"></script>
+    <script src="{{ url_for('static', filename='reserved.js') }}"></script>
+</body>
+</html>
