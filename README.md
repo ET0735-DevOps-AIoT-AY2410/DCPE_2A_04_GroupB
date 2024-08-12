@@ -24,10 +24,6 @@ calcFine.py:
 - checks if any books are overdue.
 - provides a fine amount for each borrower.
 
-getFromRpi.py:
-- interacts with a REST API to manage book reservations and fines.
-- processes book reservation, updates system.
-
 readWriteBooks.py:
 - manages book data stored in a CSV file.
 - loads book data, adds new books, removes books, and changes the status from borrowed to reserved.
